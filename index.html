@@ -27,7 +27,7 @@ pre{margin:0;white-space:pre-wrap;font:13px/1.6 ui-monospace,Menlo,monospace}
 .g,.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:800px){.g,.g2{grid-template-columns:1fr}}
 label{color:var(--mut);font-size:13px}
 </style></head><body><main>
-<h1>Video tracking: kinematics, energy, equations of motion</h1>
+<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h1 style="margin:0">Video tracking: kinematics, energy, equations of motion</h1><div class="row" style="margin:0;flex-wrap:nowrap"><button id="lEN">EN</button><button id="lFR">FR</button></div></div>
 <p class="s">Load a video → set the scale → place the origin → track the object frame by frame.</p>
 
 <div class="card">
@@ -62,6 +62,23 @@ label{color:var(--mut);font-size:13px}
  <div class="sc"><table id="tb"></table></div></div>
 </main>
 <script>
+let LANG='en';try{LANG=localStorage.getItem('lang')||((navigator.language||'').slice(0,2)==='fr'?'fr':'en');}catch(e){}
+const FR={"Video tracking – Kinematics and energy": "Pointage vidéo – Cinématique et énergies", "Video tracking: kinematics, energy, equations of motion": "Pointage vidéo : cinématique, énergies, équations horaires", "Load a video → set the scale → place the origin → track the object frame by frame.": "Charger une vidéo → étalonner l’échelle → placer l’origine → pointer le mobile image par image.", "📁 Import a video": "📁 Importer une vidéo", "🎥 Record": "🎥 Filmer", "Video frames/s": "Images/s de la vidéo", "Step (frames)": "Pas (images)", "Mass (kg)": "Masse (kg)", "1. Scale": "1. Échelle", "2. Origin": "2. Origine", "3. Manual tracking": "3. Pointage manuel", "4. Auto tracking": "4. Pointage auto", "Stop": "Arrêter", "Undo last point": "Annuler dernier point", "Clear all": "Tout effacer", "Real distance (m)": "Distance réelle (m)", "Method": "Méthode", "Color (recommended)": "Couleur (conseillé)", "Shape (template)": "Forme (modèle)", "Color tolerance": "Tolérance couleur", "Template half-size (px, shape mode)": "Demi-taille du modèle (px, mode forme)", "Search radius (px)": "Rayon de recherche (px)", "Confidence threshold": "Seuil de confiance", "Adapt template (if confidence > 0.9)": "Adapter le modèle (si confiance > 0,9)", "Load a video.": "Chargez une vidéo.", "Equations of motion (t = 0 at first point)": "Équations horaires (t = 0 au premier point)", "Degree x(t)": "Degré x(t)", "Degree y(t)": "Degré y(t)", "Final state": "État final", "Graphs": "Courbes", "Measurement table": "Tableau de mesures", "Copy for spreadsheet": "Copier pour tableur", "KE (J)": "Ec (J)", "PE (J)": "Ep (J)", "ME (J)": "Em (J)", "KE": "Ec", "PE": "Ep", "ME": "Em", "Video loaded. Enter the frames/s, then click “1. Scale”.": "Vidéo chargée. Renseignez les images/s, puis cliquez sur « 1. Échelle ».", "Loading video… (": "Chargement de la vidéo… (", " MB)": " Mo)", "Cannot read this video (format not supported, code ": "Impossible de lire cette vidéo (format non supporté, code ", "). On iPhone: Settings > Camera > Formats > Most Compatible, then film again.": "). Sur iPhone : Réglages > Appareil photo > Formats > Le plus compatible, puis refilmez.", "Click the 2 ends of a known length.": "Cliquez sur les 2 extrémités d’une longueur connue.", "Click the origin of the frame (x to the right, y up).": "Cliquez sur l’origine du repère (x vers la droite, y vers le haut).", "Click the object; the video advances automatically.": "Cliquez sur le mobile ; la vidéo avance automatiquement.", "Click the object (first frame): auto tracking then starts.": "Cliquez sur le mobile (image de départ) : le suivi automatique démarre ensuite.", "Scale: ": "Échelle : ", " m/pixel. Now set the origin.": " m/pixel. Passez à l’origine.", "Origin set. Now start tracking.": "Origine placée. Passez au pointage.", "Set the scale and the origin first.": "Faites d’abord l’échelle et l’origine.", " s (frame ": " s (image ", "(ref.: y = 0 at the origin)": "(réf. : y = 0 à l’origine)", "Object color not detected: click at the center of the object or increase the tolerance.": "Couleur du mobile non détectée : cliquez au centre du mobile ou augmentez la tolérance.", "End of video reached.": "Fin de la vidéo atteinte.", "Tracking lost at t = ": "Suivi perdu à t = ", " s (confidence ": " s (confiance ", "). Try the Color method, or shrink the template so it fits the object.": "). Essayez la méthode Couleur, ou réduisez le modèle pour qu’il colle au mobile.", "Object not found at t = ": "Mobile introuvable à t = ", " s. Increase the color tolerance or the radius, and check the frames/s and the step.": " s. Augmentez la tolérance couleur ou le rayon, vérifiez les images/s et le pas.", " px detected": " px détectés", "Tracking… frame ": "Suivi en cours… image ", "confidence ": "confiance ", "Tracking stopped.": "Suivi arrêté.", "Tracking finished.": "Suivi terminé.", "not enough points": "pas assez de points", "No data yet.": "Pas encore de données.", "Copied.": "Copié.", "Copy blocked: select the table by hand.": "Copie bloquée : sélectionnez le tableau à la main.", "position (m)": "position (m)", "speed (m/s)": "vitesse (m/s)", "energy (J)": "énergie (J)", "Positions x(t) and y(t)": "Positions x(t) et y(t)", "Speed v(t) and components vx(t), vy(t)": "Vitesse v(t) et composantes vx(t), vy(t)", "Kinetic, potential and mechanical energy": "Énergies cinétique, potentielle, mécanique", "Trajectory y(x)": "Trajectoire y(x)"};
+const tr=s=>LANG==='fr'&&FR[s]!==undefined?FR[s]:s;
+function setLang(l){LANG=l;try{localStorage.setItem('lang',l);}catch(e){}applyLang();}
+function applyLang(){
+ document.documentElement.lang=LANG;document.title=tr('Video tracking – Kinematics and energy');
+ const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
+ while(n=w.nextNode()){
+  if(n.parentNode.closest('script,canvas,#msg,pre,#tb'))continue;
+  const raw=n.nodeValue,k=n.__k||raw.trim();
+  if(!k||(!n.__k&&FR[k]===undefined))continue;
+  n.__k=k;const m=raw.match(/^(\s*)[\s\S]*?(\s*)$/);n.nodeValue=m[1]+tr(k)+m[2];
+ }
+ $('lEN').classList.toggle('on',LANG==='en');$('lFR').classList.toggle('on',LANG==='fr');
+ if(!v.duration)say(tr('Load a video.'));else say('');
+ refresh();
+}
 const $=id=>document.getElementById(id),v=$('v'),c=$('c'),ctx=c.getContext('2d');
 const S={pts:[],cal:[],scale:null,orig:null,mode:null};
 const fps=()=>+$('fps').value||30, dt=()=>1/fps();
@@ -70,9 +87,9 @@ const fmt=n=>isFinite(n)?String(+n.toPrecision(4)):'—';
 const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
 $('up').onclick=()=>{$('f').value='';$('f').click();};$('cam').onclick=()=>{$('fc').value='';$('fc').click();};
-['f','fc'].forEach(id=>$(id).onchange=e=>{const f=e.target.files[0];if(!f)return;S.stop=true;S.pts=[];S.cal=[];S.scale=null;S.orig=null;S.mode=null;say('Loading video… ('+Math.round(f.size/1e6)+' MB)');v.src=URL.createObjectURL(f);v.load();refresh();});
-v.onloadedmetadata=()=>{c.width=v.videoWidth;c.height=v.videoHeight;$('sl').max=v.duration;$('tsz').value=Math.round(c.width/64);$('rad').value=Math.round(c.width/12);seek(0);say('Video loaded. Enter the frames/s, then click “1. Scale”.');};
-v.onerror=()=>say('Cannot read this video (format not supported, code '+(v.error&&v.error.code)+'). On iPhone: Settings > Camera > Formats > Most Compatible, then film again.');
+['f','fc'].forEach(id=>$(id).onchange=e=>{const f=e.target.files[0];if(!f)return;S.stop=true;S.pts=[];S.cal=[];S.scale=null;S.orig=null;S.mode=null;say(tr('Loading video… (')+Math.round(f.size/1e6)+tr(' MB)'));v.src=URL.createObjectURL(f);v.load();refresh();});
+v.onloadedmetadata=()=>{c.width=v.videoWidth;c.height=v.videoHeight;$('sl').max=v.duration;$('tsz').value=Math.round(c.width/64);$('rad').value=Math.round(c.width/12);seek(0);say(tr('Video loaded. Enter the frames/s, then click “1. Scale”.'));};
+v.onerror=()=>say(tr('Cannot read this video (format not supported, code ')+(v.error&&v.error.code)+tr('). On iPhone: Settings > Camera > Formats > Most Compatible, then film again.'));
 function seek(t){t=Math.max(0,Math.min(v.duration||0,t));return new Promise(r=>{if(Math.abs(v.currentTime-t)<1e-4){draw();r();return;}
  v.onseeked=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{draw();r();}));v.currentTime=t;});}
 const frame=()=>Math.round(v.currentTime*fps());
@@ -81,7 +98,7 @@ $('prev').onclick=()=>seek(v.currentTime-dt());
 $('next').onclick=()=>seek(v.currentTime+dt());
 
 function setMode(m){S.mode=m;['b1','b2','b3','b4'].forEach((b,i)=>$(b).classList.toggle('on',m===['cal','orig','track','auto'][i]));
- say({cal:'Click the 2 ends of a known length.',orig:'Click the origin of the frame (x to the right, y up).',track:'Click the object; the video advances automatically.',auto:'Click the object (first frame): auto tracking then starts.'}[m]||'');if(m==='cal')S.cal=[];}
+ say({cal:tr('Click the 2 ends of a known length.'),orig:tr('Click the origin of the frame (x to the right, y up).'),track:tr('Click the object; the video advances automatically.'),auto:tr('Click the object (first frame): auto tracking then starts.')}[m]||'');if(m==='cal')S.cal=[];}
 $('b1').onclick=()=>setMode('cal');$('b2').onclick=()=>setMode('orig');$('b3').onclick=()=>setMode('track');$('b4').onclick=()=>setMode('auto');$('stop').onclick=()=>{S.stop=true;};
 $('undo').onclick=()=>{const p=S.pts.pop();if(p)seek(p.t);refresh();};
 $('clr').onclick=()=>{S.stop=true;S.pts=[];S.cal=[];S.scale=null;S.orig=null;setMode(null);draw();refresh();};
@@ -89,11 +106,11 @@ $('clr').onclick=()=>{S.stop=true;S.pts=[];S.cal=[];S.scale=null;S.orig=null;set
 c.onclick=async e=>{
  if(!v.duration)return;const r=c.getBoundingClientRect(),x=(e.clientX-r.left)*c.width/r.width,y=(e.clientY-r.top)*c.height/r.height;
  if(S.mode==='cal'){S.cal.push({x,y});if(S.cal.length===2){const d=Math.hypot(S.cal[1].x-S.cal[0].x,S.cal[1].y-S.cal[0].y);
-   S.scale=(+$('dist').value)/d;say('Scale: '+fmt(S.scale)+' m/pixel. Now set the origin.');S.mode=null;}draw();}
- else if(S.mode==='orig'){S.orig={x,y};say('Origin set. Now start tracking.');S.mode=null;draw();refresh();}
+   S.scale=(+$('dist').value)/d;say(tr('Scale: ')+fmt(S.scale)+tr(' m/pixel. Now set the origin.'));S.mode=null;}draw();}
+ else if(S.mode==='orig'){S.orig={x,y};say(tr('Origin set. Now start tracking.'));S.mode=null;draw();refresh();}
  else if(S.mode==='auto'){await startAuto(x,y);}
  else if(S.mode==='track'){
-  if(!S.scale||!S.orig){say('Set the scale and the origin first.');return;}
+  if(!S.scale||!S.orig){say(tr('Set the scale and the origin first.'));return;}
   const k=frame(),i=S.pts.findIndex(p=>p.k===k),p={k,t:k/fps(),px:x,py:y};
   if(i>=0)S.pts[i]=p;else{S.pts.push(p);S.pts.sort((a,b)=>a.k-b.k);}
   refresh();await seek(v.currentTime+(+$('step').value||1)*dt());}
@@ -108,7 +125,7 @@ function draw(){
  ctx.fillStyle='#ef4444';S.pts.forEach(p=>{ctx.beginPath();ctx.arc(p.px,p.py,4*u,0,7);ctx.fill();});
  if(S.box){ctx.strokeStyle='#facc15';ctx.strokeRect(S.box.x-S.box.h,S.box.y-S.box.h,2*S.box.h,2*S.box.h);}
  if(S.blob&&S.k){ctx.fillStyle='rgba(34,211,238,.7)';for(let i=0;i<S.blob.length;i+=2)ctx.fillRect(S.blob[i]*S.k-u,S.blob[i+1]*S.k-u,2*u,2*u);}
- $('sl').value=v.currentTime;$('tl').textContent='t = '+fmt(v.currentTime)+' s (frame '+frame()+')';
+ $('sl').value=v.currentTime;$('tl').textContent='t = '+fmt(v.currentTime)+tr(' s (frame ')+frame()+')';
 }
 
 function compute(){
@@ -129,19 +146,19 @@ function polyfit(ts,ys,d){
   for(let r=0;r<k;r++)if(r!==i){const f=A[r][i]/A[i][i];for(let q=i;q<=k;q++)A[r][q]-=f*A[i][q];}}
  return A.map((row,i)=>row[k]/row[i]);
 }
-function eqStr(nm,co){if(!co)return nm+'(t) : pas assez de points';
+function eqStr(nm,co){if(!co)return nm+'(t) : '+tr('not enough points');
  const u=['',' t',' t²'];return nm+'(t) = '+co.map((a,i)=>(i?(a<0?' − ':' + '):(a<0?'−':''))+fmt(Math.abs(a))+(i?'·t'+(i>1?'²':''):'')).join('');}
 
 function refresh(){
  const R=compute();
- $('tb').innerHTML='<tr><th>t (s)</th><th>x (m)</th><th>y (m)</th><th>vx (m/s)</th><th>vy (m/s)</th><th>v (m/s)</th><th>KE (J)</th><th>PE (J)</th><th>ME (J)</th></tr>'+
+ $('tb').innerHTML='<tr><th>t (s)</th><th>x (m)</th><th>y (m)</th><th>vx (m/s)</th><th>vy (m/s)</th><th>v (m/s)</th><th>'+tr('KE (J)')+'</th><th>'+tr('PE (J)')+'</th><th>'+tr('ME (J)')+'</th></tr>'+
   R.map(r=>'<tr>'+[r.t,r.x,r.y,r.vx,r.vy,r.v,r.Ec,r.Ep,r.Em].map(a=>'<td>'+fmt(a)+'</td>').join('')+'</tr>').join('');
  if(R.length){const ts=R.map(r=>r.t),cx=polyfit(ts,R.map(r=>r.x),+$('dx').value),cy=polyfit(ts,R.map(r=>r.y),+$('dy').value);
   let s=eqStr('x',cx)+' (m)\n'+eqStr('y',cy)+' (m)';
   if(cx)s+='\nvx(t) = '+fmt(cx[1]||0)+(cx[2]?(cx[2]<0?' − ':' + ')+fmt(2*Math.abs(cx[2]))+'·t':'')+' (m/s)';
   if(cy)s+='\nvy(t) = '+fmt(cy[1]||0)+(cy[2]?(cy[2]<0?' − ':' + ')+fmt(2*Math.abs(cy[2]))+'·t':'')+' (m/s)';
   $('eq').textContent=s;
-  const L=R[R.length-1];$('fin').textContent='t = '+fmt(L.t)+' s\nx = '+fmt(L.x)+' m   y = '+fmt(L.y)+' m\nvx = '+fmt(L.vx)+' m/s   vy = '+fmt(L.vy)+' m/s\nv = '+fmt(L.v)+' m/s\nKE = '+fmt(L.Ec)+' J\nPE = '+fmt(L.Ep)+' J  (ref.: y = 0 at the origin)\nME = '+fmt(L.Em)+' J';
+  const L=R[R.length-1];$('fin').textContent='t = '+fmt(L.t)+' s\nx = '+fmt(L.x)+' m   y = '+fmt(L.y)+' m\nvx = '+fmt(L.vx)+' m/s   vy = '+fmt(L.vy)+' m/s\nv = '+fmt(L.v)+' m/s\n'+tr('KE')+' = '+fmt(L.Ec)+' J\n'+tr('PE')+' = '+fmt(L.Ep)+' J  '+tr('(ref.: y = 0 at the origin)')+'\n'+tr('ME')+' = '+fmt(L.Em)+' J';
  }else{$('eq').textContent='—';$('fin').textContent='—';}
  chart(R);draw();
 }
@@ -182,44 +199,44 @@ function pickBlob(rgb,col,tol,qx,qy,R,A0){
  return{x:sx/n,y:sy/n,n,pts};
 }
 async function startAuto(x,y){
- if(!S.scale||!S.orig){say('Set the scale and the origin first.');return;}
+ if(!S.scale||!S.orig){say(tr('Set the scale and the origin first.'));return;}
  S.stop=false;S.mode=null;
  const stp=+$('step').value||1,thr=+$('thr').value||.5,meth=$('meth').value,tol=+$('tol').value||60;
  let gr=grab();const k=S.k,h=Math.max(2,Math.round((+$('tsz').value||10)/k)),R=Math.max(3,Math.round((+$('rad').value||40)/k));
  let cx=Math.min(Math.max(Math.round(x/k),h),PC.width-h-1),cy=Math.min(Math.max(Math.round(y/k),h),PC.height-h-1);
- let T=null,col=null,A0=0,bh=h*k,n=0,vx=0,vy=0,end='Tracking finished.';
+ let T=null,col=null,A0=0,bh=h*k,n=0,vx=0,vy=0,end=tr('Tracking finished.');
  if(meth==='tpl')T=mkTpl(gr,cx,cy,h);
  else{col=medColor(S.rgb,cx,cy);const b=pickBlob(S.rgb,col,tol,cx,cy,R,0);
-  if(!b){setMode(null);say('Object color not detected: click at the center of the object or increase the tolerance.');return;}
+  if(!b){setMode(null);say(tr('Object color not detected: click at the center of the object or increase the tolerance.'));return;}
   cx=b.x;cy=b.y;A0=b.n;S.blob=b.pts;bh=(Math.sqrt(b.n/Math.PI)+4)*k;}
  addPt(cx*k,cy*k);S.box={x:cx*k,y:cy*k,h:bh};
  while(!S.stop){
-  const nt=v.currentTime+stp*dt();if(nt>v.duration-1e-3){end='End of video reached.';break;}
+  const nt=v.currentTime+stp*dt();if(nt>v.duration-1e-3){end=tr('End of video reached.');break;}
   await seek(nt);gr=grab();
   const qx=Math.round(cx+vx),qy=Math.round(cy+vy);let info='';
   if(meth==='tpl'){
    let r=match(gr,T,qx,qy,R);if(r.s<thr)r=match(gr,T,qx,qy,3*R);
-   if(r.s<thr){end='Tracking lost at t = '+fmt(v.currentTime)+' s (confidence '+fmt(r.s)+'). Try the Color method, or shrink the template so it fits the object.';break;}
-   vx=r.x-cx;vy=r.y-cy;cx=r.x;cy=r.y;info='confidence '+fmt(r.s);
+   if(r.s<thr){end=tr('Tracking lost at t = ')+fmt(v.currentTime)+tr(' s (confidence ')+fmt(r.s)+tr('). Try the Color method, or shrink the template so it fits the object.');break;}
+   vx=r.x-cx;vy=r.y-cy;cx=r.x;cy=r.y;info=tr('confidence ')+fmt(r.s);
    if($('upd').checked&&r.s>.9)T=mkTpl(gr,cx,cy,h);
   }else{
    let b=pickBlob(S.rgb,col,tol,qx,qy,R,A0);if(!b)b=pickBlob(S.rgb,col,tol,qx,qy,3*R,A0);
-   if(!b){end='Object not found at t = '+fmt(v.currentTime)+' s. Increase the color tolerance or the radius, and check the frames/s and the step.';break;}
-   vx=b.x-cx;vy=b.y-cy;cx=b.x;cy=b.y;S.blob=b.pts;bh=(Math.sqrt(b.n/Math.PI)+4)*k;info=b.n+' px detected';
+   if(!b){end=tr('Object not found at t = ')+fmt(v.currentTime)+tr(' s. Increase the color tolerance or the radius, and check the frames/s and the step.');break;}
+   vx=b.x-cx;vy=b.y-cy;cx=b.x;cy=b.y;S.blob=b.pts;bh=(Math.sqrt(b.n/Math.PI)+4)*k;info=b.n+tr(' px detected');
   }
   addPt(cx*k,cy*k);S.box={x:cx*k,y:cy*k,h:bh};
-  if(++n%5===0)refresh();draw();say('Tracking… frame '+frame()+' ('+info+')');
+  if(++n%5===0)refresh();draw();say(tr('Tracking… frame ')+frame()+' ('+info+')');
   await new Promise(ok=>setTimeout(ok));
  }
- if(S.stop)end='Tracking stopped.';S.box=null;S.blob=null;setMode(null);say(end);refresh();
+ if(S.stop)end=tr('Tracking stopped.');S.box=null;S.blob=null;setMode(null);say(end);refresh();
 }
 
 function plot(id,series,xl,yl,title){
  const cv=$(id),x=cv.getContext('2d'),W=cv.width,H=cv.height;x.clearRect(0,0,W,H);
  const fg=css('--fg')||'#888',mut=css('--mut')||'#888';
- x.fillStyle=fg;x.font='bold 13px sans-serif';x.fillText(title,10,16);
+ x.fillStyle=fg;x.font='bold 13px sans-serif';x.fillText(tr(title),10,16);
  const all=series.flatMap(s=>s.Y).filter(isFinite),allx=series[0].X;
- if(!all.length){x.fillStyle=mut;x.font='13px sans-serif';x.fillText('No data yet.',20,50);return;}
+ if(!all.length){x.fillStyle=mut;x.font='13px sans-serif';x.fillText(tr('No data yet.'),20,50);return;}
  let a=Math.min(...allx),b=Math.max(...allx),c0=Math.min(...all),c1=Math.max(...all);
  if(a===b){a-=1;b+=1;}if(c0===c1){c0-=1;c1+=1;}const pd=(c1-c0)*.08;c0-=pd;c1+=pd;
  const L=56,T=30,Rr=W-14,B=H-34,X=t=>L+(t-a)/(b-a)*(Rr-L),Y=q=>B-(q-c0)/(c1-c0)*(B-T);
@@ -227,11 +244,11 @@ function plot(id,series,xl,yl,title){
  x.beginPath();x.moveTo(L,T);x.lineTo(L,B);x.lineTo(Rr,B);x.stroke();
  for(let i=0;i<=5;i++){const tx=a+(b-a)*i/5,ty=c0+(c1-c0)*i/5;x.fillText(fmt(tx),X(tx)-10,B+14);x.fillText(fmt(ty),2,Y(ty)+4);
   x.globalAlpha=.2;x.beginPath();x.moveTo(L,Y(ty));x.lineTo(Rr,Y(ty));x.stroke();x.globalAlpha=1;}
- x.fillStyle=fg;x.fillText(xl,Rr-70,H-4);x.fillText(yl,L+6,T-4);
+ x.fillStyle=fg;x.fillText(xl,Rr-70,H-4);x.fillText(tr(yl),L+6,T-4);
  series.forEach((s,j)=>{x.strokeStyle=s.col;x.fillStyle=s.col;x.lineWidth=2;x.beginPath();let pen=false;
   s.X.forEach((t,i)=>{const q=s.Y[i];if(!isFinite(q)){pen=false;return;}pen?x.lineTo(X(t),Y(q)):x.moveTo(X(t),Y(q));pen=true;});x.stroke();
   s.X.forEach((t,i)=>{if(isFinite(s.Y[i])){x.beginPath();x.arc(X(t),Y(s.Y[i]),2.5,0,7);x.fill();}});
-  if(series.length>1)x.fillText(s.n,Rr-40,T+14+j*14);});
+  if(series.length>1)x.fillText(tr(s.n),Rr-40,T+14+j*14);});
 }
 function chart(R){
  const t=R.map(r=>r.t),f=k=>R.map(r=>r[k]);
@@ -240,7 +257,8 @@ function chart(R){
  plot('c3',[{n:'KE',col:'#ef4444',X:t,Y:f('Ec')},{n:'PE',col:'#3b82f6',X:t,Y:f('Ep')},{n:'ME',col:'#22c55e',X:t,Y:f('Em')}],'t (s)','energy (J)','Kinetic, potential and mechanical energy');
  plot('c4',[{n:'y(x)',col:'#f97316',X:f('x'),Y:f('y')}],'x (m)','y (m)','Trajectory y(x)');
 }
-$('cp').onclick=async()=>{const R=compute();const tsv='t\tx\ty\tvx\tvy\tv\tKE\tPE\tME\n'+R.map(r=>[r.t,r.x,r.y,r.vx,r.vy,r.v,r.Ec,r.Ep,r.Em].join('\t')).join('\n');
- try{await navigator.clipboard.writeText(tsv);$('cpm').textContent='Copied.';}catch(e){$('cpm').textContent='Copy blocked: select the table by hand.';}};
-refresh();
+$('cp').onclick=async()=>{const R=compute();const tsv='t\tx\ty\tvx\tvy\tv\t'+tr('KE')+'\t'+tr('PE')+'\t'+tr('ME')+'\n'+R.map(r=>[r.t,r.x,r.y,r.vx,r.vy,r.v,r.Ec,r.Ep,r.Em].join('\t')).join('\n');
+ try{await navigator.clipboard.writeText(tsv);$('cpm').textContent=tr('Copied.');}catch(e){$('cpm').textContent=tr('Copy blocked: select the table by hand.');}};
+$('lEN').onclick=()=>setLang('en');$('lFR').onclick=()=>setLang('fr');
+applyLang();
 </script></body></html>
