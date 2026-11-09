@@ -1,84 +1,383 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="author" content="M.Belarbi">
+<meta name="copyright" content="© M.Belarbi">
 <title>Video tracking – Kinematics and energy</title>
 <style>
-:root{--bg:#fff;--fg:#1c1c1e;--mut:#6b6b70;--card:#f3f3f5;--ac:#c2410c;--bd:#d9d9de;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17171a;--fg:#ececf0;--mut:#9a9aa3;--card:#232328;--ac:#fb923c;--bd:#38383f}}
-:root[data-theme="dark"]{--bg:#17171a;--fg:#ececf0;--mut:#9a9aa3;--card:#232328;--ac:#fb923c;--bd:#38383f}
+:root{--bg:#fff;--fg:#1c1c1e;--mut:#6b6b70;--card:#f3f3f5;--card2:#fff;--ac:#c2410c;--ac2:#ea580c;--bd:#d9d9de;--ok:#16a34a;--warn:#d97706;--err:#dc2626;--info:#2563eb;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17171a;--fg:#ececf0;--mut:#9a9aa3;--card:#232328;--card2:#1d1d21;--ac:#fb923c;--ac2:#fdba74;--bd:#38383f;--ok:#22c55e;--warn:#f59e0b;--err:#ef4444;--info:#60a5fa}}
+:root[data-theme="dark"]{--bg:#17171a;--fg:#ececf0;--mut:#9a9aa3;--card:#232328;--card2:#1d1d21;--ac:#fb923c;--ac2:#fdba74;--bd:#38383f;--ok:#22c55e;--warn:#f59e0b;--err:#ef4444;--info:#60a5fa}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:1100px;margin:0 auto;padding:16px}
+main{max-width:1180px;margin:0 auto;padding:16px}
 h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:0 0 8px}
 p.s{color:var(--mut);margin:0 0 14px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+.card.flat{background:var(--card2)}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
-button,select,input{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--bd);border-radius:7px;padding:6px 10px}
+.row.tight{gap:6px}
+button,select,input{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:6px 10px;transition:background .15s,border-color .15s,transform .05s}
+button:hover{border-color:var(--ac)}
+button:active{transform:scale(.97)}
 input[type=number]{width:84px}input[type=range]{flex:1;min-width:160px;padding:0}
-button{cursor:pointer}button.on{background:var(--ac);border-color:var(--ac);color:#fff}
-canvas{max-width:100%;height:auto;border-radius:6px;background:#000;display:block;cursor:crosshair}
-.ch{background:var(--bg);cursor:default;border:1px solid var(--bd);width:100%;height:auto}
+button{cursor:pointer}
+button.on{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:600}
+button.primary{background:var(--ac);border-color:var(--ac);color:#fff}
+button.primary:hover{background:var(--ac2);border-color:var(--ac2)}
+button.ghost{background:transparent}
+button.small{padding:3px 8px;font-size:13px}
+canvas{max-width:100%;height:auto;border-radius:8px;background:#000;display:block;cursor:crosshair;touch-action:none}
+.ch{background:var(--card2);cursor:default;border:1px solid var(--bd);width:100%;height:auto}
 .note{color:var(--mut);font-size:13px;margin:0 0 8px}
-.msg{color:var(--ac);font-weight:600;min-height:1.4em}
-.sc{overflow-x:auto;max-height:340px;overflow-y:auto}
-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:13px}
-th,td{padding:3px 8px;text-align:right;border-bottom:1px solid var(--bd);white-space:nowrap}
-th{position:sticky;top:0;background:var(--card)}
+.msg{color:var(--ac);font-weight:600;min-height:1.4em;display:flex;align-items:center;gap:8px}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid transparent}
+.badge.ok{background:rgba(22,163,74,.12);color:var(--ok);border-color:rgba(22,163,74,.3)}
+.badge.warn{background:rgba(217,119,6,.12);color:var(--warn);border-color:rgba(217,119,6,.3)}
+.badge.err{background:rgba(220,38,38,.12);color:var(--err);border-color:rgba(220,38,38,.3)}
+.badge.info{background:rgba(37,99,235,.12);color:var(--info);border-color:rgba(37,99,235,.3)}
+.sc{overflow-x:auto;max-height:360px;overflow-y:auto;border-radius:8px;border:1px solid var(--bd)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:13px;background:var(--card2)}
+th,td{padding:4px 10px;text-align:right;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{position:sticky;top:0;background:var(--card);font-weight:600;font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.02em}
+tbody tr:hover{background:rgba(194,65,12,.07)}
+tbody tr.sel{background:rgba(194,65,12,.15);outline:2px solid var(--ac);outline-offset:-2px}
 pre{margin:0;white-space:pre-wrap;font:13px/1.6 ui-monospace,Menlo,monospace}
-.g,.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:800px){.g,.g2{grid-template-columns:1fr}}
-label{color:var(--mut);font-size:13px}
+.g,.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:900px){.g,.g2{grid-template-columns:1fr}}
+label{color:var(--mut);font-size:13px;display:flex;align-items:center;gap:6px}
+label.inline{display:inline-flex}
+.stage{position:relative;background:#000;border-radius:8px;overflow:hidden}
+.stage .hud{position:absolute;top:8px;left:8px;display:flex;gap:6px;pointer-events:none}
+.stage .hud .badge{pointer-events:auto}
+.stage .zoom{position:absolute;top:8px;right:8px;display:flex;gap:4px;background:rgba(0,0,0,.5);padding:4px;border-radius:8px}
+.stage .zoom button{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.25);padding:3px 9px;font-size:13px}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:6px 8px;background:var(--card2);border:1px solid var(--bd);border-radius:8px;margin-top:8px}
+.toolbar .sp{flex:1}
+.grp{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--bd)}
+.grp button{border:none;border-radius:0;border-right:1px solid var(--bd)}
+.grp button:last-child{border-right:none}
+.stat{display:flex;flex-direction:column;gap:2px;padding:8px 10px;background:var(--card2);border:1px solid var(--bd);border-radius:10px;min-width:130px;flex:1}
+.stat b{font-size:16px;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--bd);margin-bottom:10px}
+.tabs button{background:none;border:none;border-bottom:2px solid transparent;border-radius:0;padding:6px 12px;color:var(--mut)}
+.tabs button.on{color:var(--ac);border-bottom-color:var(--ac);background:none;font-weight:600}
+details summary{cursor:pointer;color:var(--mut);font-size:13px;padding:4px 0;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"▸ ";display:inline-block;transition:transform .15s}
+details[open] summary::before{transform:rotate(90deg)}
 #splash{position:fixed;inset:0;z-index:99;background:#c2410c;color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .4s}
 @media (display-mode:standalone){#splash{display:flex}}
 #splash.hide{opacity:0;pointer-events:none}#splash img{width:112px;height:112px;border-radius:24px}#splash b{font-size:22px}
 #upd{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:98;display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:10px}
 #upd button{background:var(--ac);color:#fff;border-color:var(--ac)}
-</style><link rel="manifest" href="manifest.webmanifest">
+.kbd{font:11px/1 ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--card);border:1px solid var(--bd);border-radius:4px;color:var(--mut)}
+
+/* ===== Copyright ===== */
+footer.credit{
+  text-align:center;
+  color:var(--mut);
+  font-size:13px;
+  padding:18px 8px 24px;
+  border-top:1px solid var(--bd);
+  margin-top:20px;
+}
+footer.credit b{color:var(--ac);font-weight:600}
+.print-only{display:none}
+
+/* ===== PRINT ===== */
+@media print{
+  @page{size:A4 portrait;margin:12mm}
+  body{background:#fff !important;color:#000 !important;font-size:12px}
+  main{max-width:none;padding:0}
+  button,#up,#cam,.toolbar,.zoom,.hud,.tabs,details,#splash,#upd,
+  #gTabs,.msg,.kbd,video,#thm,#lEN,#lFR,#fpsbadge,
+  .card > .row:first-child,
+  .stage{display:none !important}
+  .card{break-inside:avoid;page-break-inside:avoid;border:1px solid #999 !important;background:#fff !important;margin-bottom:10px;padding:8px}
+  .stat{background:#fff !important;border:1px solid #999 !important;color:#000 !important}
+  .stat b,.stat span{color:#000 !important}
+  .stats{grid-template-columns:repeat(3,1fr) !important}
+  .sc{max-height:none !important;overflow:visible !important;border:1px solid #999}
+  table{font-size:10px;background:#fff !important}
+  th{background:#eee !important;color:#000 !important}
+  td,th{border-bottom:1px solid #ccc !important}
+  tbody tr.sel{outline:none !important;background:transparent !important}
+  .ch{background:#fff !important;border:1px solid #999 !important;page-break-inside:avoid;width:100% !important;height:auto !important}
+  pre{color:#000 !important}
+  h1{color:#000;font-size:16px}
+  h2{color:#000;font-size:13px;margin-top:6px}
+  #gWrap canvas{display:block !important}
+  .print-only{
+    display:block !important;
+    text-align:center;
+    margin-bottom:12px;
+    border-bottom:2px solid #c2410c;
+    padding-bottom:6px;
+  }
+  .print-only h1{margin:0 0 2px;color:#000;font-size:15px}
+  .print-credit{font-size:11px;color:#333}
+  footer.credit{
+    display:block !important;
+    border-top:1px solid #999 !important;
+    color:#000 !important;
+    font-size:11px;
+    padding:8px 0;
+    margin-top:14px;
+    page-break-before:avoid;
+  }
+  footer.credit b{color:#000 !important}
+}
+body.print-table-only #eq,body.print-table-only #fin,
+body.print-table-only #gWrap,body.print-table-only #stats,
+body.print-table-only p.s{display:none !important}
+body.print-graph-only #tb,body.print-graph-only #eq,body.print-graph-only #fin,
+body.print-graph-only #stats{display:none !important}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#c2410c">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Video Tracking"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" type="image/png" href="favicon-32.png">
 </head><body>
 <div id="splash"><img src="icon-192.png" alt=""><b>Video Tracking</b></div><main>
-<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h1 style="margin:0">Video tracking: kinematics, energy, equations of motion</h1><div class="row" style="margin:0;flex-wrap:nowrap"><button id="lEN">EN</button><button id="lFR">FR</button></div></div>
+
+<header class="print-only">
+  <h1>Video tracking – Measurement report</h1>
+  <div class="print-credit">© M.Belarbi</div>
+</header>
+
+<div class="row" style="justify-content:space-between;flex-wrap:nowrap"><h1 style="margin:0">Video tracking: kinematics, energy, equations of motion</h1><div class="row" style="margin:0;flex-wrap:nowrap;gap:6px">
+ <button id="thm" title="Theme">🌓</button>
+ <button id="lEN" class="small">EN</button><button id="lFR" class="small">FR</button></div></div>
 <p class="s">Load a video → set the scale → place the origin → track the object frame by frame.</p>
 
+<!-- ============ VIDEO CARD ============ -->
 <div class="card">
- <div class="row"><button id="up">📁 Import a video</button><button id="cam">🎥 Record</button><input type="file" id="f" accept="video/*" hidden><input type="file" id="fc" accept="video/*" capture="environment" hidden>
-  <label>Video frames/s <input type="number" id="fps" value="30" min="1" step="any"></label>
+ <div class="row">
+  <button id="up" class="primary">📁 Import a video</button>
+  <button id="cam">🎥 Record</button>
+  <input type="file" id="f" accept="video/*" hidden><input type="file" id="fc" accept="video/*" capture="environment" hidden>
+  <span class="sp"></span>
+  <span id="fpsbadge" class="badge info" style="display:none">— fps</span>
+ </div>
+ <details><summary>Video formats & tips</summary>
+  <div class="note">Accepted video formats: MP4 (H.264) works everywhere. MOV and WebM work on most phones and browsers. HEVC (H.265), AVI, MKV and WMV often do not. Tip: film a few seconds in 1080p or lower.</div>
+  <div class="note">Film perpendicular to the plane of motion, with the ruler in that same plane; otherwise measurements are distorted.</div>
+ </details>
+
+ <div class="row">
+  <label>Frames/s <input type="number" id="fps" value="30" min="1" step="any"></label>
   <label>Step (frames) <input type="number" id="step" value="1" min="1" step="1"></label>
   <label>Mass (kg) <input type="number" id="m" value="1" min="0" step="any"></label>
-  <label>g (m/s²) <input type="number" id="g" value="9.81" step="any"></label></div>
- <div class="note">Accepted video formats: MP4 (H.264) works everywhere. MOV and WebM work on most phones and browsers. HEVC (H.265), AVI, MKV and WMV often do not. Tip: film a few seconds in 1080p or lower.</div>
- <div class="note">Film perpendicular to the plane of motion, with the ruler in that same plane; otherwise measurements are distorted.</div>
- <div class="row">
-  <button id="b1">1. Scale</button><button id="b2">2. Origin</button><button id="b3">3. Manual tracking</button><button id="b4">4. Auto tracking</button><button id="b5">5. Correct point</button><button id="del">Delete point</button><button id="stop">Stop</button>
-  <button id="undo">Undo last point</button><button id="clr">Clear all</button>
-  <label>Real distance (m) <input type="number" id="dist" value="1" min="0" step="any"></label></div>
- <div class="row"><label>Method <select id="meth"><option value="col">Color (recommended)</option><option value="tpl">Shape (template)</option></select></label><label>Color tolerance <input type="number" id="tol" value="60" min="10" max="250"></label><label>Template half-size (px, shape mode) <input type="number" id="tsz" value="10" min="3"></label><label>Search radius (px) <input type="number" id="rad" value="40" min="5"></label><label>Confidence threshold <input type="number" id="thr" value="0.5" min="0" max="1" step="0.05"></label><label><input type="checkbox" id="upd" checked> Adapt template (if confidence &gt; 0.9)</label></div>
- <div class="row"><label><input type="checkbox" id="shv" checked> Velocity vector (green)</label><label><input type="checkbox" id="sha"> Acceleration vector (magenta)</label></div>
+  <label>g (m/s²) <input type="number" id="g" value="9.81" step="any"></label>
+ </div>
+
+ <div class="toolbar">
+  <div class="grp">
+   <button id="b1">1. Scale</button><button id="b2">2. Origin</button><button id="b3">3. Manual</button><button id="b4">4. Auto</button><button id="b5">5. Fix</button>
+  </div>
+  <label>Real distance (m) <input type="number" id="dist" value="1" min="0" step="any"></label>
+  <span class="sp"></span>
+  <button id="del" class="small">Delete point</button>
+  <button id="undo" class="small">Undo</button>
+  <button id="clr" class="small">Clear all</button>
+ </div>
+
+ <details><summary>Advanced tracking parameters</summary>
+  <div class="row" style="margin-top:8px">
+   <label>Method <select id="meth"><option value="col">Color (recommended)</option><option value="tpl">Shape (template)</option></select></label>
+   <label>Color tolerance <input type="number" id="tol" value="60" min="10" max="250"></label>
+   <label>Template half-size (px) <input type="number" id="tsz" value="10" min="3"></label>
+   <label>Search radius (px) <input type="number" id="rad" value="40" min="5"></label>
+   <label>Confidence threshold <input type="number" id="thr" value="0.5" min="0" max="1" step="0.05"></label>
+   <label class="inline"><input type="checkbox" id="upd" checked> Adapt template</label>
+  </div>
+ </details>
+
+ <div class="row" style="margin-top:8px">
+  <label class="inline"><input type="checkbox" id="shv" checked> Velocity (green)</label>
+  <label class="inline"><input type="checkbox" id="sha"> Acceleration (magenta)</label>
+  <label class="inline"><input type="checkbox" id="shz"> Show zoom inset</label>
+ </div>
+
  <div class="msg" id="msg">Load a video.</div>
- <div class="row"><button id="prev">◀</button><input type="range" id="sl" min="0" max="1" step="0.001" value="0"><button id="next">▶</button><span id="tl"></span></div>
+
+ <div class="stage">
+  <canvas id="c" width="640" height="360"></canvas>
+  <div class="hud">
+   <span id="hudState" class="badge info">idle</span>
+   <span id="hudConf" class="badge info" style="display:none">—</span>
+  </div>
+  <div class="zoom">
+   <button id="zOut" title="Zoom out">−</button>
+   <button id="z1" title="Reset zoom" style="font-size:12px">1×</button>
+   <button id="zIn" title="Zoom in">+</button>
+  </div>
+ </div>
+
  <video id="v" muted playsinline preload="auto" style="position:absolute;width:2px;height:2px;opacity:0;pointer-events:none"></video>
- <canvas id="c" width="640" height="360"></canvas>
+
+ <div class="toolbar" style="margin-top:8px">
+  <button id="prev">◀</button>
+  <button id="play">▶</button>
+  <button id="next">▶</button>
+  <button id="stop" class="small">Stop</button>
+  <span class="kbd">space</span><span class="kbd">←</span><span class="kbd">→</span>
+  <input type="range" id="sl" min="0" max="1" step="0.001" value="0" style="flex:1">
+  <span id="tl">t = 0.000 s (frame 0)</span>
+ </div>
 </div>
 
+<!-- ============ STATS ============ -->
+<div class="stats" id="stats">
+ <div class="stat"><span>g measured</span><b id="statG">—</b></div>
+ <div class="stat"><span>g error</span><b id="statGErr">—</b></div>
+ <div class="stat"><span>ΔEm</span><b id="statDE">—</b></div>
+ <div class="stat"><span>v max</span><b id="statV">—</b></div>
+ <div class="stat"><span>Points</span><b id="statN">0</b></div>
+ <div class="stat"><span>FPS</span><b id="statFps">30</b></div>
+</div>
+
+<!-- ============ EQUATIONS + FINAL ============ -->
 <div class="g">
  <div class="card"><h2>Equations of motion (t = 0 at first point)</h2>
-  <div class="row"><label>Degree x(t) <select id="dx"><option>1</option><option>2</option></select></label>
-  <label>Degree y(t) <select id="dy"><option>1</option><option selected>2</option></select></label></div>
+  <div class="row">
+   <label>Degree x(t) <select id="dx"><option>1</option><option>2</option></select></label>
+   <label>Degree y(t) <select id="dy"><option>1</option><option selected>2</option></select></label>
+   <label class="inline"><input type="checkbox" id="autoDeg"> Auto</label>
+  </div>
   <pre id="eq">—</pre></div>
  <div class="card"><h2>Final state</h2><pre id="fin">—</pre></div>
 </div>
 
-<div class="card"><h2>Graphs</h2><div class="g2"><canvas id="c1" class="ch" width="640" height="300"></canvas><canvas id="c2" class="ch" width="640" height="300"></canvas><canvas id="c3" class="ch" width="640" height="300"></canvas><canvas id="c4" class="ch" width="640" height="300"></canvas><canvas id="c5" class="ch" width="640" height="300"></canvas></div></div>
+<!-- ============ GRAPHS ============ -->
+<div class="card"><h2>Graphs</h2>
+ <div class="row" style="margin-bottom:6px">
+  <button id="prGraph" title="Print only the currently visible graph">🖨 Print this graph</button>
+  <button id="prAllGraph" title="Print the 5 graphs">🖨 Print all graphs</button>
+ </div>
+ <div class="tabs" id="gTabs">
+  <button data-g="c1" class="on">x(t), y(t)</button>
+  <button data-g="c2">v(t)</button>
+  <button data-g="c3">Energy</button>
+  <button data-g="c4">y(x)</button>
+  <button data-g="c5">Residuals</button>
+ </div>
+ <div id="gWrap">
+  <canvas id="c1" class="ch" width="640" height="300"></canvas>
+  <canvas id="c2" class="ch" width="640" height="300" style="display:none"></canvas>
+  <canvas id="c3" class="ch" width="640" height="300" style="display:none"></canvas>
+  <canvas id="c4" class="ch" width="640" height="300" style="display:none"></canvas>
+  <canvas id="c5" class="ch" width="640" height="300" style="display:none"></canvas>
+ </div>
+</div>
 
+<!-- ============ TABLE ============ -->
 <div class="card"><h2>Measurement table</h2>
- <div class="row"><button id="cp">Copy for spreadsheet</button><span id="cpm" class="msg"></span></div>
- <div class="sc"><table id="tb"></table></div></div>
+ <div class="row">
+  <button id="cp">📋 Copy TSV</button>
+  <button id="csv">💾 Download CSV</button>
+  <button id="jsn">💾 Download JSON</button>
+  <span class="sp"></span>
+  <button id="prTab" title="Print the measurement table only">🖨 Print table</button>
+  <button id="prRep" class="primary" title="Print the full report: stats + equations + all graphs + table">🖨 Print full report</button>
+  <span id="cpm" class="msg"></span>
+ </div>
+ <div class="sc"><table id="tb"></table></div>
+</div>
+
+<footer class="credit">© <span id="cpyear">2026</span> — <b>M.Belarbi</b> · Video tracking</footer>
 </main>
+
 <script>
+"use strict";
+/* ============================================================
+   i18n
+   ============================================================ */
 let LANG='en';try{LANG=localStorage.getItem('lang')||((navigator.language||'').slice(0,2)==='fr'?'fr':'en');}catch(e){}
-const FR={"New version available.":"Nouvelle version disponible.","Reload":"Recharger","5. Correct point": "5. Corriger un point", "Delete point": "Supprimer le point", "Velocity vector (green)": "Vecteur vitesse (vert)", "Acceleration vector (magenta)": "Vecteur accélération (magenta)", "Film perpendicular to the plane of motion, with the ruler in that same plane; otherwise measurements are distorted.": "Filmez perpendiculairement au plan du mouvement, avec la règle dans ce même plan ; sinon les mesures sont faussées.", "Go to the frame (◀ ▶ or click a table row), then click the object.": "Allez à l’image voulue (◀ ▶ ou clic sur une ligne du tableau), puis cliquez sur le mobile.", "Point corrected at frame ": "Point corrigé à l’image ", "ΔEm (last − first) = ": "ΔEm (dernier − premier) = ", "of exchanged energy": "de l’énergie échangée", "Mechanical energy ≈ conserved.": "Énergie mécanique ≈ conservée.", "Small change in mechanical energy.": "Faible variation de l’énergie mécanique.", "Large change: friction, or check scale and frames/s.": "Forte variation : frottements, ou vérifiez l’échelle et les images/s.", "Includes tracking noise.": "Inclut le bruit de pointage.", "Time step: ": "Pas de temps : ", "residual (m)": "résidu (m)", "Fit residuals (data − fit)": "Résidus de l’ajustement (mesure − modèle)","Accepted video formats: MP4 (H.264) works everywhere. MOV and WebM work on most phones and browsers. HEVC (H.265), AVI, MKV and WMV often do not. Tip: film a few seconds in 1080p or lower.":"Formats vidéo acceptés : MP4 (H.264) fonctionne partout. MOV et WebM fonctionnent sur la plupart des téléphones et navigateurs. HEVC (H.265), AVI, MKV et WMV souvent non. Conseil : filmez quelques secondes en 1080p ou moins.","Video tracking – Kinematics and energy": "Pointage vidéo – Cinématique et énergies", "Video tracking: kinematics, energy, equations of motion": "Pointage vidéo : cinématique, énergies, équations horaires", "Load a video → set the scale → place the origin → track the object frame by frame.": "Charger une vidéo → étalonner l’échelle → placer l’origine → pointer le mobile image par image.", "📁 Import a video": "📁 Importer une vidéo", "🎥 Record": "🎥 Filmer", "Video frames/s": "Images/s de la vidéo", "Step (frames)": "Pas (images)", "Mass (kg)": "Masse (kg)", "1. Scale": "1. Échelle", "2. Origin": "2. Origine", "3. Manual tracking": "3. Pointage manuel", "4. Auto tracking": "4. Pointage auto", "Stop": "Arrêter", "Undo last point": "Annuler dernier point", "Clear all": "Tout effacer", "Real distance (m)": "Distance réelle (m)", "Method": "Méthode", "Color (recommended)": "Couleur (conseillé)", "Shape (template)": "Forme (modèle)", "Color tolerance": "Tolérance couleur", "Template half-size (px, shape mode)": "Demi-taille du modèle (px, mode forme)", "Search radius (px)": "Rayon de recherche (px)", "Confidence threshold": "Seuil de confiance", "Adapt template (if confidence > 0.9)": "Adapter le modèle (si confiance > 0,9)", "Load a video.": "Chargez une vidéo.", "Equations of motion (t = 0 at first point)": "Équations horaires (t = 0 au premier point)", "Degree x(t)": "Degré x(t)", "Degree y(t)": "Degré y(t)", "Final state": "État final", "Graphs": "Courbes", "Measurement table": "Tableau de mesures", "Copy for spreadsheet": "Copier pour tableur", "KE (J)": "Ec (J)", "PE (J)": "Ep (J)", "ME (J)": "Em (J)", "KE": "Ec", "PE": "Ep", "ME": "Em", "Video loaded. Enter the frames/s, then click “1. Scale”.": "Vidéo chargée. Renseignez les images/s, puis cliquez sur « 1. Échelle ».", "Loading video… (": "Chargement de la vidéo… (", " MB)": " Mo)", "Cannot read this video (format not supported, code ": "Impossible de lire cette vidéo (format non supporté, code ", "). On iPhone: Settings > Camera > Formats > Most Compatible, then film again.": "). Sur iPhone : Réglages > Appareil photo > Formats > Le plus compatible, puis refilmez.", "Click the 2 ends of a known length.": "Cliquez sur les 2 extrémités d’une longueur connue.", "Click the origin of the frame (x to the right, y up).": "Cliquez sur l’origine du repère (x vers la droite, y vers le haut).", "Click the object; the video advances automatically.": "Cliquez sur le mobile ; la vidéo avance automatiquement.", "Click the object (first frame): auto tracking then starts.": "Cliquez sur le mobile (image de départ) : le suivi automatique démarre ensuite.", "Scale: ": "Échelle : ", " m/pixel. Now set the origin.": " m/pixel. Passez à l’origine.", "Origin set. Now start tracking.": "Origine placée. Passez au pointage.", "Set the scale and the origin first.": "Faites d’abord l’échelle et l’origine.", " s (frame ": " s (image ", "(ref.: y = 0 at the origin)": "(réf. : y = 0 à l’origine)", "Object color not detected: click at the center of the object or increase the tolerance.": "Couleur du mobile non détectée : cliquez au centre du mobile ou augmentez la tolérance.", "End of video reached.": "Fin de la vidéo atteinte.", "Tracking lost at t = ": "Suivi perdu à t = ", " s (confidence ": " s (confiance ", "). Try the Color method, or shrink the template so it fits the object.": "). Essayez la méthode Couleur, ou réduisez le modèle pour qu’il colle au mobile.", "Object not found at t = ": "Mobile introuvable à t = ", " s. Increase the color tolerance or the radius, and check the frames/s and the step.": " s. Augmentez la tolérance couleur ou le rayon, vérifiez les images/s et le pas.", " px detected": " px détectés", "Tracking… frame ": "Suivi en cours… image ", "confidence ": "confiance ", "Tracking stopped.": "Suivi arrêté.", "Tracking finished.": "Suivi terminé.", "not enough points": "pas assez de points", "No data yet.": "Pas encore de données.", "Copied.": "Copié.", "Copy blocked: select the table by hand.": "Copie bloquée : sélectionnez le tableau à la main.", "position (m)": "position (m)", "speed (m/s)": "vitesse (m/s)", "energy (J)": "énergie (J)", "Positions x(t) and y(t)": "Positions x(t) et y(t)", "Speed v(t) and components vx(t), vy(t)": "Vitesse v(t) et composantes vx(t), vy(t)", "Kinetic, potential and mechanical energy": "Énergies cinétique, potentielle, mécanique", "Trajectory y(x)": "Trajectoire y(x)"};
+const FR={
+ "New version available.":"Nouvelle version disponible.","Reload":"Recharger",
+ "5. Correct point":"5. Corriger un point","5. Fix":"5. Corriger","3. Manual":"3. Manuel","4. Auto":"4. Auto",
+ "Delete point":"Supprimer le point","Undo":"Annuler","Clear all":"Tout effacer",
+ "Velocity (green)":"Vitesse (vert)","Acceleration (magenta)":"Accélération (magenta)",
+ "Show zoom inset":"Afficher la loupe",
+ "Film perpendicular to the plane of motion, with the ruler in that same plane; otherwise measurements are distorted.":"Filmez perpendiculairement au plan du mouvement, avec la règle dans ce même plan ; sinon les mesures sont faussées.",
+ "Go to the frame (◀ ▶ or click a table row), then click the object.":"Allez à l’image voulue (◀ ▶ ou clic sur une ligne du tableau), puis cliquez sur le mobile.",
+ "Point corrected at frame ":"Point corrigé à l’image ",
+ "ΔEm (last − first) = ":"ΔEm (dernier − premier) = ",
+ "of exchanged energy":"de l’énergie échangée",
+ "Mechanical energy ≈ conserved.":"Énergie mécanique ≈ conservée.",
+ "Small change in mechanical energy.":"Faible variation de l’énergie mécanique.",
+ "Large change: friction, or check scale and frames/s.":"Forte variation : frottements, ou vérifiez l’échelle et les images/s.",
+ "Includes tracking noise.":"Inclut le bruit de pointage.",
+ "Time step: ":"Pas de temps : ",
+ "residual (m)":"résidu (m)",
+ "Fit residuals (data − fit)":"Résidus de l’ajustement (mesure − modèle)",
+ "Accepted video formats: MP4 (H.264) works everywhere. MOV and WebM work on most phones and browsers. HEVC (H.265), AVI, MKV and WMV often do not. Tip: film a few seconds in 1080p or lower.":"Formats vidéo acceptés : MP4 (H.264) fonctionne partout. MOV et WebM fonctionnent sur la plupart des téléphones et navigateurs. HEVC (H.265), AVI, MKV et WMV souvent non. Conseil : filmez quelques secondes en 1080p ou moins.",
+ "Video tracking – Kinematics and energy":"Pointage vidéo – Cinématique et énergies",
+ "Video tracking: kinematics, energy, equations of motion":"Pointage vidéo : cinématique, énergies, équations horaires",
+ "Load a video → set the scale → place the origin → track the object frame by frame.":"Charger une vidéo → étalonner l’échelle → placer l’origine → pointer le mobile image par image.",
+ "📁 Import a video":"📁 Importer une vidéo","🎥 Record":"🎥 Filmer",
+ "Video formats & tips":"Formats vidéo & astuces",
+ "Frames/s":"Images/s","Step (frames)":"Pas (images)","Mass (kg)":"Masse (kg)","g (m/s²)":"g (m/s²)",
+ "1. Scale":"1. Échelle","2. Origin":"2. Origine","3. Manual":"3. Manuel","4. Auto":"4. Auto","5. Fix":"5. Corriger",
+ "Real distance (m)":"Distance réelle (m)",
+ "Advanced tracking parameters":"Paramètres avancés de suivi",
+ "Method":"Méthode","Color (recommended)":"Couleur (conseillé)","Shape (template)":"Forme (modèle)",
+ "Color tolerance":"Tolérance couleur","Template half-size (px)":"Demi-taille du modèle (px)",
+ "Search radius (px)":"Rayon de recherche (px)","Confidence threshold":"Seuil de confiance",
+ "Adapt template":"Adapter le modèle","Stop":"Arrêter",
+ "Load a video.":"Chargez une vidéo.",
+ "idle":"prêt","tracking":"suivi","done":"terminé","lost":"perdu",
+ "Equations of motion (t = 0 at first point)":"Équations horaires (t = 0 au premier point)",
+ "Degree x(t)":"Degré x(t)","Degree y(t)":"Degré y(t)","Auto":"Auto","Final state":"État final",
+ "Graphs":"Courbes","x(t), y(t)":"x(t), y(t)","v(t)":"v(t)","Energy":"Énergie","y(x)":"y(x)","Residuals":"Résidus",
+ "Measurement table":"Tableau de mesures","📋 Copy TSV":"📋 Copier TSV","💾 Download CSV":"💾 CSV","💾 Download JSON":"💾 JSON",
+ "g measured":"g mesuré","g error":"incertitude g","v max":"v max","Points":"Points","FPS":"Images/s",
+ "Video loaded. Enter the frames/s, then click “1. Scale”.":"Vidéo chargée. Renseignez les images/s, puis cliquez sur « 1. Échelle ».",
+ "Loading video… (":"Chargement de la vidéo… ("," MB)":" Mo)",
+ "Cannot read this video (format not supported, code ":"Impossible de lire cette vidéo (format non supporté, code ",
+ "). On iPhone: Settings > Camera > Formats > Most Compatible, then film again.":"). Sur iPhone : Réglages > Appareil photo > Formats > Le plus compatible, puis refilmez.",
+ "Click the 2 ends of a known length.":"Cliquez sur les 2 extrémités d’une longueur connue.",
+ "Click the origin of the frame (x to the right, y up).":"Cliquez sur l’origine du repère (x vers la droite, y vers le haut).",
+ "Click the object; the video advances automatically.":"Cliquez sur le mobile ; la vidéo avance automatiquement.",
+ "Click the object (first frame): auto tracking then starts.":"Cliquez sur le mobile (image de départ) : le suivi automatique démarre ensuite.",
+ "Scale: ":"Échelle : "," m/pixel. Now set the origin.":" m/pixel. Passez à l’origine.",
+ "Origin set. Now start tracking.":"Origine placée. Passez au pointage.",
+ "Set the scale and the origin first.":"Faites d’abord l’échelle et l’origine.",
+ " s (frame ":" s (image ","(ref.: y = 0 at the origin)":"(réf. : y = 0 à l’origine)",
+ "Object color not detected: click at the center of the object or increase the tolerance.":"Couleur du mobile non détectée : cliquez au centre du mobile ou augmentez la tolérance.",
+ "End of video reached.":"Fin de la vidéo atteinte.",
+ "Tracking lost at t = ":"Suivi perdu à t = "," s (confidence ":" s (confiance ",
+ "). Try the Color method, or shrink the template so it fits the object.":"). Essayez la méthode Couleur, ou réduisez le modèle pour qu’il colle au mobile.",
+ "Object not found at t = ":"Mobile introuvable à t = ",
+ " s. Increase the color tolerance or the radius, and check the frames/s and the step.":" s. Augmentez la tolérance couleur ou le rayon, vérifiez les images/s et le pas.",
+ " px detected":" px détectés","Tracking… frame ":"Suivi en cours… image ",
+ "confidence ":"confiance ","Tracking stopped.":"Suivi arrêté.","Tracking finished.":"Suivi terminé.",
+ "not enough points":"pas assez de points","No data yet.":"Pas encore de données.",
+ "Copied.":"Copié.","Copy blocked: select the table by hand.":"Copie bloquée : sélectionnez le tableau à la main.",
+ "position (m)":"position (m)","speed (m/s)":"vitesse (m/s)","energy (J)":"énergie (J)",
+ "Positions x(t) and y(t)":"Positions x(t) et y(t)",
+ "Speed v(t) and components vx(t), vy(t)":"Vitesse v(t) et composantes vx(t), vy(t)",
+ "Kinetic, potential and mechanical energy":"Énergies cinétique, potentielle, mécanique",
+ "Trajectory y(x)":"Trajectoire y(x)",
+ "KE (J)":"Ec (J)","PE (J)":"Ep (J)","ME (J)":"Em (J)","KE":"Ec","PE":"Ep","ME":"Em",
+ "Play":"Lecture","Pause":"Pause",
+ "Zoom in":"Zoom +","Zoom out":"Zoom −","Reset zoom":"Zoom 1×",
+ "Copy TSV":"Copier TSV","Download CSV":"Télécharger CSV","Download JSON":"Télécharger JSON",
+ "CSV downloaded.":"CSV téléchargé.","JSON downloaded.":"JSON téléchargé.",
+ "🖨 Print table":"🖨 Imprimer le tableau",
+ "🖨 Print full report":"🖨 Imprimer le rapport",
+ "🖨 Print this graph":"🖨 Imprimer ce graphe",
+ "🖨 Print all graphs":"🖨 Imprimer tous les graphes",
+ "Print the measurement table only":"Imprimer seulement le tableau de mesures",
+ "Print the full report: stats + equations + all graphs + table":"Imprimer le rapport complet : stats + équations + tous les graphes + tableau",
+ "Print only the currently visible graph":"Imprimer seulement le graphe visible",
+ "Print the 5 graphs":"Imprimer les 5 graphes",
+ "Video tracking – Measurement report":"Pointage vidéo – Rapport de mesures"
+};
 const tr=s=>LANG==='fr'&&FR[s]!==undefined?FR[s]:s;
 function setLang(l){LANG=l;try{localStorage.setItem('lang',l);}catch(e){}applyLang();}
 function applyLang(){
@@ -94,192 +393,677 @@ function applyLang(){
  if(!v.duration)say(tr('Load a video.'));else say('');
  refresh();
 }
+
+/* ============================================================
+   State
+   ============================================================ */
 const $=id=>document.getElementById(id),v=$('v'),c=$('c'),ctx=c.getContext('2d');
-const S={pts:[],cal:[],scale:null,orig:null,mode:null};
+const S={pts:[],cal:[],scale:null,orig:null,mode:null,stop:true,detectedFps:null,lastConf:null,zoom:1,pan:{x:0,y:0},tableSel:-1};
 const fps=()=>+$('fps').value||30, dt=()=>1/fps();
 const say=t=>$('msg').textContent=t;
 const fmt=n=>isFinite(n)?String(+n.toPrecision(4)):'—';
 const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
 
-$('up').onclick=()=>{$('f').value='';$('f').click();};$('cam').onclick=()=>{$('fc').value='';$('fc').click();};
-['f','fc'].forEach(id=>$(id).onchange=e=>{const f=e.target.files[0];if(!f)return;S.stop=true;S.pts=[];S.cal=[];S.scale=null;S.orig=null;S.mode=null;say(tr('Loading video… (')+Math.round(f.size/1e6)+tr(' MB)'));v.src=URL.createObjectURL(f);v.load();refresh();});
-v.onloadedmetadata=()=>{c.width=v.videoWidth;c.height=v.videoHeight;$('sl').max=v.duration;$('tsz').value=Math.round(c.width/64);$('rad').value=Math.round(c.width/12);seek(0);say(tr('Video loaded. Enter the frames/s, then click “1. Scale”.'));};
-v.onerror=()=>say(tr('Cannot read this video (format not supported, code ')+(v.error&&v.error.code)+tr('). On iPhone: Settings > Camera > Formats > Most Compatible, then film again.'));
-function seek(t){t=Math.max(0,Math.min(v.duration||0,t));return new Promise(r=>{if(Math.abs(v.currentTime-t)<1e-4){draw();r();return;}
- v.onseeked=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{draw();r();}));v.currentTime=t;});}
+/* ============================================================
+   Theme
+   ============================================================ */
+$('thm').onclick=()=>{
+ const r=document.documentElement;
+ const cur=r.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+ r.dataset.theme=cur==='dark'?'light':'dark';
+ try{localStorage.setItem('theme',r.dataset.theme);}catch(e){}
+ refresh();
+};
+try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}
+
+/* ============================================================
+   File loading
+   ============================================================ */
+$('up').onclick=()=>{$('f').value='';$('f').click();};
+$('cam').onclick=()=>{$('fc').value='';$('fc').click();};
+['f','fc'].forEach(id=>$(id).onchange=e=>{
+ const f=e.target.files[0];if(!f)return;
+ S.stop=true;S.pts=[];S.cal=[];S.scale=null;S.orig=null;S.mode=null;S.detectedFps=null;S.lastConf=null;
+ say(tr('Loading video… (')+Math.round(f.size/1e6)+tr(' MB)'));
+ v.src=URL.createObjectURL(f);v.load();refresh();
+});
+
+v.onloadedmetadata=()=>{
+ c.width=v.videoWidth;c.height=v.videoHeight;
+ $('sl').max=v.duration;
+ $('tsz').value=Math.round(c.width/64);
+ $('rad').value=Math.round(c.width/12);
+ S.zoom=1;S.pan={x:0,y:0};
+ seek(0);
+ say(tr('Video loaded. Enter the frames/s, then click “1. Scale”.'));
+ detectFps();
+};
+
+v.onerror=()=>{
+ if(!v.error)return;
+ say(tr('Cannot read this video (format not supported, code ')+(v.error&&v.error.code)+tr('). On iPhone: Settings > Camera > Formats > Most Compatible, then film again.'));
+};
+
+async function detectFps(){
+ if(!('requestVideoFrameCallback' in HTMLVideoElement.prototype))return;
+ try{
+  const t0=v.currentTime;let count=0,lastMeta=null;
+  await v.play().catch(()=>{});
+  const start=performance.now();
+  while(count<40 && performance.now()-start<1500){
+   await new Promise(r=>v.requestVideoFrameCallback((now,meta)=>{
+    if(meta.mediaTime>t0+0.4)lastMeta=meta;
+    count++;r();
+   }));
+   if(lastMeta)break;
+  }
+  v.pause();
+  if(lastMeta){
+   const span=lastMeta.mediaTime-t0;
+   if(span>0.1){
+    const guess=Math.round((count-1)/span);
+    if(guess>5&&guess<240){
+     S.detectedFps=guess;
+     const b=$('fpsbadge');b.style.display='';
+     b.textContent='≈ '+guess+' fps';
+     b.title='Detected from the video.';
+     if(+$('fps').value===30){$('fps').value=guess;}
+    }
+   }
+  }
+ }catch(e){}
+}
+
+/* ============================================================
+   Seek / play
+   ============================================================ */
+function seek(t){
+ t=clamp(t,0,v.duration||0);
+ return new Promise(r=>{
+  if(Math.abs(v.currentTime-t)<1e-4){draw();r();return;}
+  v.onseeked=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{draw();r();}));
+  v.currentTime=t;
+ });
+}
 const frame=()=>Math.round(v.currentTime*fps());
 $('sl').oninput=e=>seek(+e.target.value);
 $('prev').onclick=()=>seek(v.currentTime-dt());
 $('next').onclick=()=>seek(v.currentTime+dt());
+$('play').onclick=()=>{
+ if(v.paused){v.play().catch(()=>{});$('play').textContent='⏸';}
+ else{v.pause();$('play').textContent='▶';}
+};
+v.onplay=()=>$('play').textContent='⏸';
+v.onpause=()=>$('play').textContent='▶';
 
-function setMode(m){S.mode=m;['b1','b2','b3','b4','b5'].forEach((b,i)=>$(b).classList.toggle('on',m===['cal','orig','track','auto','fix'][i]));
- say({cal:tr('Click the 2 ends of a known length.'),orig:tr('Click the origin of the frame (x to the right, y up).'),track:tr('Click the object; the video advances automatically.'),auto:tr('Click the object (first frame): auto tracking then starts.'),fix:tr('Go to the frame (◀ ▶ or click a table row), then click the object.')}[m]||'');if(m==='cal')S.cal=[];}
-$('b1').onclick=()=>setMode('cal');$('b2').onclick=()=>setMode('orig');$('b3').onclick=()=>setMode('track');$('b4').onclick=()=>setMode('auto');$('b5').onclick=()=>setMode('fix');$('del').onclick=()=>{const k=frame();S.pts=S.pts.filter(p=>p.k!==k);refresh();};
-$('tb').onclick=e=>{const row=e.target.closest('tr[data-i]');if(row&&S.pts[+row.dataset.i])seek(S.pts[+row.dataset.i].t);};
-['shv','sha'].forEach(i=>$(i).onchange=draw);$('stop').onclick=()=>{S.stop=true;};
+document.addEventListener('keydown',e=>{
+ if(e.target.matches('input,select,textarea,button'))return;
+ if(e.code==='Space'){e.preventDefault();$('play').click();}
+ else if(e.code==='ArrowLeft'){e.preventDefault();seek(v.currentTime-dt());}
+ else if(e.code==='ArrowRight'){e.preventDefault();seek(v.currentTime+dt());}
+});
+
+/* ============================================================
+   Modes
+   ============================================================ */
+const MODES=['cal','orig','track','auto','fix'];
+const MODE_IDS=['b1','b2','b3','b4','b5'];
+function setMode(m){
+ S.mode=m;
+ MODE_IDS.forEach((b,i)=>$(b).classList.toggle('on',m===MODES[i]));
+ const hints={cal:tr('Click the 2 ends of a known length.'),
+  orig:tr('Click the origin of the frame (x to the right, y up).'),
+  track:tr('Click the object; the video advances automatically.'),
+  auto:tr('Click the object (first frame): auto tracking then starts.'),
+  fix:tr('Go to the frame (◀ ▶ or click a table row), then click the object.')};
+ say(hints[m]||'');
+ if(m==='cal')S.cal=[];
+ draw();
+}
+MODES.forEach((m,i)=>$(MODE_IDS[i]).onclick=()=>setMode(m));
+$('del').onclick=()=>{const k=frame();S.pts=S.pts.filter(p=>p.k!==k);refresh();};
+$('tb').onclick=e=>{
+ const row=e.target.closest('tr[data-i]');if(!row||!S.pts[+row.dataset.i])return;
+ S.tableSel=+row.dataset.i;
+ seek(S.pts[S.tableSel].t);
+ refresh();
+};
+['shv','sha'].forEach(i=>$(i).onchange=draw);
+$('shz').onchange=draw;
+$('stop').onclick=()=>{S.stop=true;};
 $('undo').onclick=()=>{const p=S.pts.pop();if(p)seek(p.t);refresh();};
-$('clr').onclick=()=>{S.stop=true;S.pts=[];S.cal=[];S.scale=null;S.orig=null;setMode(null);draw();refresh();};
+$('clr').onclick=()=>{
+ S.stop=true;S.pts=[];S.cal=[];S.scale=null;S.orig=null;S.tableSel=-1;
+ setMode(null);refresh();
+};
 
+/* ============================================================
+   Zoom / pan
+   ============================================================ */
+function zoomAt(f,sx,sy){
+ const oldZoom=S.zoom;
+ S.zoom=clamp(S.zoom*f,1,10);
+ if(sx!==undefined){
+  S.pan.x=clamp((sx+S.pan.x)*(S.zoom/oldZoom)-sx,0,(S.zoom-1)*c.width/S.zoom);
+  S.pan.y=clamp((sy+S.pan.y)*(S.zoom/oldZoom)-sy,0,(S.zoom-1)*c.height/S.zoom);
+ }
+ draw();
+}
+$('zIn').onclick=()=>zoomAt(1.25);
+$('zOut').onclick=()=>zoomAt(0.8);
+$('z1').onclick=()=>{S.zoom=1;S.pan={x:0,y:0};draw();};
+c.addEventListener('wheel',e=>{
+ if(e.ctrlKey||e.metaKey)e.preventDefault();
+ const r=c.getBoundingClientRect();
+ const sx=(e.clientX-r.left)*c.width/r.width;
+ const sy=(e.clientY-r.top)*c.height/r.height;
+ zoomAt(e.deltaY<0?1.15:0.87,sx,sy);
+},{passive:false});
+let pinch=null;
+c.addEventListener('touchstart',e=>{
+ if(e.touches.length===2){
+  const r=c.getBoundingClientRect();
+  const x=(e.touches[0].clientX+e.touches[1].clientX)/2-r.left;
+  const y=(e.touches[0].clientY+e.touches[1].clientY)/2-r.top;
+  pinch={d:Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY),
+   x:x*c.width/r.width,y:y*c.height/r.height,z:S.zoom};
+ }
+},{passive:true});
+c.addEventListener('touchmove',e=>{
+ if(e.touches.length===2&&pinch){
+  e.preventDefault();
+  const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+  if(d>0){
+   const f=d/pinch.d;
+   S.zoom=clamp(pinch.z*f,1,10);
+   S.pan.x=clamp((pinch.x+S.pan.x)*(S.zoom/pinch.z)-pinch.x,0,(S.zoom-1)*c.width/S.zoom);
+   S.pan.y=clamp((pinch.y+S.pan.y)*(S.zoom/pinch.z)-pinch.y,0,(S.zoom-1)*c.height/S.zoom);
+   draw();
+  }
+ }
+},{passive:false});
+c.addEventListener('touchend',()=>{pinch=null;},{passive:true});
+
+/* ============================================================
+   Canvas click → modes
+   ============================================================ */
 c.onclick=async e=>{
- if(!v.duration)return;const r=c.getBoundingClientRect(),x=(e.clientX-r.left)*c.width/r.width,y=(e.clientY-r.top)*c.height/r.height;
- if(S.mode==='cal'){S.cal.push({x,y});if(S.cal.length===2){const d=Math.hypot(S.cal[1].x-S.cal[0].x,S.cal[1].y-S.cal[0].y);
-   S.scale=(+$('dist').value)/d;say(tr('Scale: ')+fmt(S.scale)+tr(' m/pixel. Now set the origin.'));S.mode=null;}draw();}
- else if(S.mode==='orig'){S.orig={x,y};say(tr('Origin set. Now start tracking.'));S.mode=null;draw();refresh();}
- else if(S.mode==='fix'){addPt(x,y);refresh();say(tr('Point corrected at frame ')+frame());}
- else if(S.mode==='auto'){await startAuto(x,y);}
- else if(S.mode==='track'){
+ if(!v.duration)return;
+ const r=c.getBoundingClientRect();
+ let sx=(e.clientX-r.left)*c.width/r.width;
+ let sy=(e.clientY-r.top)*c.height/r.height;
+ sx=(sx+S.pan.x)/S.zoom; sy=(sy+S.pan.y)/S.zoom;
+ const x=sx,y=sy;
+ if(S.mode==='cal'){
+  S.cal.push({x,y});
+  if(S.cal.length===2){
+   const d=Math.hypot(S.cal[1].x-S.cal[0].x,S.cal[1].y-S.cal[0].y);
+   S.scale=(+$('dist').value)/d;
+   say(tr('Scale: ')+fmt(S.scale)+tr(' m/pixel. Now set the origin.'));
+   S.mode=null;MODE_IDS.forEach(b=>$(b).classList.remove('on'));
+  }
+  draw();
+ } else if(S.mode==='orig'){
+  S.orig={x,y};say(tr('Origin set. Now start tracking.'));S.mode=null;
+  MODE_IDS.forEach(b=>$(b).classList.remove('on'));
+  draw();refresh();
+ } else if(S.mode==='fix'){
+  addPt(x,y);refresh();say(tr('Point corrected at frame ')+frame());
+ } else if(S.mode==='auto'){
+  await startAuto(x,y);
+ } else if(S.mode==='track'){
   if(!S.scale||!S.orig){say(tr('Set the scale and the origin first.'));return;}
   const k=frame(),i=S.pts.findIndex(p=>p.k===k),p={k,t:k/fps(),px:x,py:y};
   if(i>=0)S.pts[i]=p;else{S.pts.push(p);S.pts.sort((a,b)=>a.k-b.k);}
-  refresh();await seek(v.currentTime+(+$('step').value||1)*dt());}
+  refresh();
+  await seek(v.currentTime+(+$('step').value||1)*dt());
+ }
 };
 
-function arrow(x0,y0,dx,dy,col){const u=c.width/640;ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=2.5*u;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x0+dx,y0+dy);ctx.stroke();
- const a=Math.atan2(dy,dx),h=9*u;ctx.beginPath();ctx.moveTo(x0+dx,y0+dy);ctx.lineTo(x0+dx-h*Math.cos(a-.4),y0+dy-h*Math.sin(a-.4));ctx.lineTo(x0+dx-h*Math.cos(a+.4),y0+dy-h*Math.sin(a+.4));ctx.fill();}
+/* ============================================================
+   Draw
+   ============================================================ */
+function arrow(x0,y0,dx,dy,col){
+ const u=c.width/640;ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=2.5*u;
+ ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x0+dx,y0+dy);ctx.stroke();
+ const a=Math.atan2(dy,dx),h=9*u;
+ ctx.beginPath();ctx.moveTo(x0+dx,y0+dy);
+ ctx.lineTo(x0+dx-h*Math.cos(a-.4),y0+dy-h*Math.sin(a-.4));
+ ctx.lineTo(x0+dx-h*Math.cos(a+.4),y0+dy-h*Math.sin(a+.4));
+ ctx.fill();
+}
 function draw(){
- if(!v.videoWidth)return;ctx.drawImage(v,0,0,c.width,c.height);const u=c.width/640;
- ctx.lineWidth=2*u;
- if(S.orig){ctx.strokeStyle='#22c55e';ctx.beginPath();ctx.moveTo(S.orig.x,S.orig.y);ctx.lineTo(S.orig.x+60*u,S.orig.y);ctx.moveTo(S.orig.x,S.orig.y);ctx.lineTo(S.orig.x,S.orig.y-60*u);ctx.stroke();
-  ctx.fillStyle='#22c55e';ctx.font=14*u+'px sans-serif';ctx.fillText('x',S.orig.x+64*u,S.orig.y+5*u);ctx.fillText('y',S.orig.x-4*u,S.orig.y-66*u);}
- if(S.cal.length){ctx.strokeStyle='#38bdf8';ctx.fillStyle='#38bdf8';ctx.beginPath();S.cal.forEach((q,i)=>{i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);});ctx.stroke();S.cal.forEach(q=>{ctx.fillRect(q.x-3*u,q.y-3*u,6*u,6*u);});}
- ctx.fillStyle='#ef4444';S.pts.forEach(p=>{ctx.beginPath();ctx.arc(p.px,p.py,4*u,0,7);ctx.fill();});
- if(S.box){ctx.strokeStyle='#facc15';ctx.strokeRect(S.box.x-S.box.h,S.box.y-S.box.h,2*S.box.h,2*S.box.h);}
+ if(!v.videoWidth)return;
+ const u=c.width/640;
+ ctx.setTransform(1,0,0,1,0,0);
+ ctx.fillStyle='#000';ctx.fillRect(0,0,c.width,c.height);
+ ctx.setTransform(S.zoom,0,0,S.zoom,-S.pan.x*S.zoom,-S.pan.y*S.zoom);
+ ctx.drawImage(v,0,0,c.width,c.height);
+ if(S.orig){
+  ctx.strokeStyle='#22c55e';ctx.lineWidth=2*u;
+  ctx.beginPath();
+  ctx.moveTo(S.orig.x,S.orig.y);ctx.lineTo(S.orig.x+60*u,S.orig.y);
+  ctx.moveTo(S.orig.x,S.orig.y);ctx.lineTo(S.orig.x,S.orig.y-60*u);
+  ctx.stroke();
+  ctx.fillStyle='#22c55e';ctx.font='bold '+(14*u)+'px sans-serif';
+  ctx.fillText('x',S.orig.x+64*u,S.orig.y+5*u);
+  ctx.fillText('y',S.orig.x-4*u,S.orig.y-66*u);
+ }
+ if(S.cal.length){
+  ctx.strokeStyle='#38bdf8';ctx.fillStyle='#38bdf8';ctx.lineWidth=2*u;
+  ctx.beginPath();S.cal.forEach((q,i)=>{i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);});ctx.stroke();
+  S.cal.forEach(q=>{ctx.fillRect(q.x-3*u,q.y-3*u,6*u,6*u);});
+ }
+ ctx.fillStyle='#ef4444';
+ S.pts.forEach(p=>{ctx.beginPath();ctx.arc(p.px,p.py,4*u,0,Math.PI*2);ctx.fill();});
+ if(S.box){ctx.strokeStyle='#facc15';ctx.lineWidth=2*u;ctx.strokeRect(S.box.x-S.box.h,S.box.y-S.box.h,2*S.box.h,2*S.box.h);}
  if(S.blob&&S.k){ctx.fillStyle='rgba(34,211,238,.7)';for(let i=0;i<S.blob.length;i+=2)ctx.fillRect(S.blob[i]*S.k-u,S.blob[i+1]*S.k-u,2*u,2*u);}
  const ci=S.pts.findIndex(p=>p.k===frame());
- if(ci>=0){const p=S.pts[ci];ctx.strokeStyle='#facc15';ctx.lineWidth=2*u;ctx.beginPath();ctx.arc(p.px,p.py,9*u,0,7);ctx.stroke();
-  const r=S.R&&S.R[ci];if(r&&S.scale){const mv=Math.max(...S.R.map(q=>q.v).filter(isFinite)),ma=Math.max(...S.R.map(q=>q.a).filter(isFinite));
-   if($('shv').checked&&mv>0&&isFinite(r.vx)){const g=.15*c.width/(mv/S.scale);arrow(p.px,p.py,r.vx/S.scale*g,-r.vy/S.scale*g,'#22c55e');}
-   if($('sha').checked&&ma>0&&isFinite(r.ax)){const g=.12*c.width/(ma/S.scale);arrow(p.px,p.py,r.ax/S.scale*g,-r.ay/S.scale*g,'#e879f9');}}}
- $('sl').value=v.currentTime;$('tl').textContent='t = '+fmt(v.currentTime)+tr(' s (frame ')+frame()+')';
+ if(ci>=0){
+  const p=S.pts[ci];
+  ctx.strokeStyle='#facc15';ctx.lineWidth=2*u;
+  ctx.beginPath();ctx.arc(p.px,p.py,9*u,0,Math.PI*2);ctx.stroke();
+  const R=S.R&&S.R[ci];
+  if(R&&S.scale){
+   const mv=Math.max(...S.R.map(q=>q.v).filter(isFinite));
+   const ma=Math.max(...S.R.map(q=>q.a).filter(isFinite));
+   if($('shv').checked&&mv>0&&isFinite(R.vx)){const gg=.15*c.width/(mv/S.scale);arrow(p.px,p.py,R.vx/S.scale*gg,-R.vy/S.scale*gg,'#22c55e');}
+   if($('sha').checked&&ma>0&&isFinite(R.ax)){const gg=.12*c.width/(ma/S.scale);arrow(p.px,p.py,R.ax/S.scale*gg,-R.ay/S.scale*gg,'#e879f9');}
+  }
+ }
+ const hud=$('hudState'),conf=$('hudConf');
+ if(S.stop){hud.textContent=tr('idle');hud.className='badge info';conf.style.display='none';}
+ else{hud.textContent=tr('tracking');hud.className='badge warn';}
+ $('sl').value=v.currentTime;
+ $('tl').textContent='t = '+fmt(v.currentTime)+tr(' s (frame ')+frame()+')';
+ if($('shz').checked && S.zoom===1 && ci>=0){
+  const p=S.pts[ci];
+  const inset=Math.min(140, c.width*0.18);
+  ctx.setTransform(1,0,0,1,0,0);
+  const bx=c.width-inset-16, by=16;
+  ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx,by,inset,inset);
+  const src=Math.min(c.width/5, c.height/5);
+  const sx=clamp(p.px-src,0,c.width-src*2), sy=clamp(p.py-src,0,c.height-src*2);
+  ctx.drawImage(v, sx,sy,src*2,src*2, bx,by,inset,inset);
+  ctx.strokeStyle='#facc15';ctx.lineWidth=2;ctx.strokeRect(bx,by,inset,inset);
+  ctx.beginPath();
+  ctx.moveTo(bx+inset/2-6,by+inset/2);ctx.lineTo(bx+inset/2+6,by+inset/2);
+  ctx.moveTo(bx+inset/2,by+inset/2-6);ctx.lineTo(bx+inset/2,by+inset/2+6);
+  ctx.stroke();
+ }
+ ctx.setTransform(1,0,0,1,0,0);
 }
 
+/* ============================================================
+   Compute
+   ============================================================ */
 function compute(){
- const n=S.pts.length;if(!n||!S.scale||!S.orig)return[];
+ const n=S.pts.length;
+ if(!n||!S.scale||!S.orig)return[];
  const m=+$('m').value,g=+$('g').value,t0=S.pts[0].t;
  const R=S.pts.map(p=>({t:p.t-t0,x:(p.px-S.orig.x)*S.scale,y:(S.orig.y-p.py)*S.scale}));
- R.forEach((r,i)=>{const a=R[Math.max(i-1,0)],b=R[Math.min(i+1,n-1)];
-  if(n>1){r.vx=(b.x-a.x)/(b.t-a.t);r.vy=(b.y-a.y)/(b.t-a.t);}else{r.vx=r.vy=NaN;}
-  r.v=Math.hypot(r.vx,r.vy);r.Ec=.5*m*r.v*r.v;r.Ep=m*g*r.y;r.Em=r.Ec+r.Ep;});
- R.forEach((r,i)=>{const a=Math.max(0,i-2),b=Math.min(n-1,i+2),ts=[],xs=[],ys=[];for(let j=a;j<=b;j++){ts.push(R[j].t-r.t);xs.push(R[j].x);ys.push(R[j].y);}
-  const cx=ts.length>=3?polyfit(ts,xs,2):null,cy=ts.length>=3?polyfit(ts,ys,2):null;r.ax=cx?2*cx[2]:NaN;r.ay=cy?2*cy[2]:NaN;r.a=Math.hypot(r.ax,r.ay);});
+ R.forEach((r,i)=>{
+  const a=R[Math.max(i-1,0)],b=R[Math.min(i+1,n-1)];
+  if(n>1){r.vx=(b.x-a.x)/(b.t-a.t);r.vy=(b.y-a.y)/(b.t-a.t);}
+  else{r.vx=r.vy=NaN;}
+  r.v=Math.hypot(r.vx,r.vy);
+  r.Ec=.5*m*r.v*r.v;r.Ep=m*g*r.y;r.Em=r.Ec+r.Ep;
+ });
+ R.forEach((r,i)=>{
+  const a=Math.max(0,i-2),b=Math.min(n-1,i+2),ts=[],xs=[],ys=[];
+  for(let j=a;j<=b;j++){ts.push(R[j].t-r.t);xs.push(R[j].x);ys.push(R[j].y);}
+  const cx=ts.length>=3?polyfit(ts,xs,2):null;
+  const cy=ts.length>=3?polyfit(ts,ys,2):null;
+  r.ax=cx?2*cx[2]:NaN;r.ay=cy?2*cy[2]:NaN;r.a=Math.hypot(r.ax,r.ay);
+ });
  return R;
 }
 function polyfit(ts,ys,d){
  const k=d+1;if(ts.length<k)return null;
  const A=Array.from({length:k},()=>Array(k+1).fill(0));
- ts.forEach((t,i)=>{for(let r=0;r<k;r++){for(let q=0;q<k;q++)A[r][q]+=Math.pow(t,r+q);A[r][k]+=ys[i]*Math.pow(t,r);}});
- for(let i=0;i<k;i++){let p=i;for(let r=i+1;r<k;r++)if(Math.abs(A[r][i])>Math.abs(A[p][i]))p=r;[A[i],A[p]]=[A[p],A[i]];
+ ts.forEach((t,i)=>{
+  for(let r=0;r<k;r++){
+   for(let q=0;q<k;q++)A[r][q]+=Math.pow(t,r+q);
+   A[r][k]+=ys[i]*Math.pow(t,r);
+  }
+ });
+ for(let i=0;i<k;i++){
+  let p=i;
+  for(let r=i+1;r<k;r++)if(Math.abs(A[r][i])>Math.abs(A[p][i]))p=r;
+  [A[i],A[p]]=[A[p],A[i]];
   if(Math.abs(A[i][i])<1e-12)return null;
-  for(let r=0;r<k;r++)if(r!==i){const f=A[r][i]/A[i][i];for(let q=i;q<=k;q++)A[r][q]-=f*A[i][q];}}
+  for(let r=0;r<k;r++)if(r!==i){
+   const f=A[r][i]/A[i][i];
+   for(let q=i;q<=k;q++)A[r][q]-=f*A[i][q];
+  }
+ }
  return A.map((row,i)=>row[k]/row[i]);
 }
-function eqStr(nm,co){if(!co)return nm+'(t) : '+tr('not enough points');
- const u=['',' t',' t²'];return nm+'(t) = '+co.map((a,i)=>(i?(a<0?' − ':' + '):(a<0?'−':''))+fmt(Math.abs(a))+(i?'·t'+(i>1?'²':''):'')).join('');}
+function polyfitCov(ts,ys,d){
+ const k=d+1;if(ts.length<=k)return null;
+ const XTX=Array.from({length:k},()=>Array(k).fill(0));
+ const XTY=Array(k).fill(0);
+ ts.forEach((t,i)=>{
+  for(let r=0;r<k;r++){
+   for(let q=0;q<k;q++)XTX[r][q]+=Math.pow(t,r+q);
+   XTY[r]+=ys[i]*Math.pow(t,r);
+  }
+ });
+ const A=XTX.map((row,i)=>[...row,...Array.from({length:k},(_,j)=>i===j?1:0)]);
+ for(let i=0;i<k;i++){
+  let p=i;
+  for(let r=i+1;r<k;r++)if(Math.abs(A[r][i])>Math.abs(A[p][i]))p=r;
+  [A[i],A[p]]=[A[p],A[i]];
+  if(Math.abs(A[i][i])<1e-12)return null;
+  const f=A[i][i];
+  for(let q=0;q<2*k;q++)A[i][q]/=f;
+  for(let r=0;r<k;r++)if(r!==i){
+   const ff=A[r][i];
+   for(let q=0;q<2*k;q++)A[r][q]-=ff*A[i][q];
+  }
+ }
+ const inv=A.map(row=>row.slice(k));
+ let ssq=0;
+ ts.forEach((t,i)=>{
+  let f=0;
+  for(let r=0;r<k;r++){
+   let s=0;for(let q=0;q<k;q++)s+=inv[r][q]*XTY[q];
+   f+=s*Math.pow(t,r);
+  }
+  ssq+=(ys[i]-f)**2;
+ });
+ const dof=ts.length-k;
+ const sigma2=dof>0?ssq/dof:0;
+ return inv.map(row=>row.map(x=>x*sigma2));
+}
+function eqStr(nm,co){
+ if(!co)return nm+'(t) : '+tr('not enough points');
+ return nm+'(t) = '+co.map((a,i)=>(i?(a<0?' − ':' + '):(a<0?'−':''))+fmt(Math.abs(a))+(i?'·t'+(i>1?'²':''):'')).join('');
+}
+function r2(ts,ys,co){
+ if(!co)return NaN;
+ const mean=ys.reduce((a,b)=>a+b,0)/ys.length;
+ let se=0,st=0;
+ ts.forEach((t,i)=>{
+  const f=co.reduce((a,c0,j)=>a+c0*Math.pow(t,j),0);
+  se+=(ys[i]-f)**2;st+=(ys[i]-mean)**2;
+ });
+ return st>0?1-se/st:NaN;
+}
+function autoDegree(ts,ys){
+ const maxD=Math.min(2,ts.length-2);
+ if(maxD<1)return 1;
+ const scores=[];
+ for(let d=1;d<=maxD;d++){
+  const co=polyfit(ts,ys,d);if(!co)continue;
+  const n=ts.length;let ss=0;
+  ts.forEach((t,i)=>{const f=co.reduce((a,c,j)=>a+c*Math.pow(t,j),0);ss+=(ys[i]-f)**2;});
+  const k=d+1;
+  const bic=n*Math.log(Math.max(ss/n,1e-12))+k*Math.log(n);
+  scores.push({d,bic});
+ }
+ scores.sort((a,b)=>a.bic-b.bic);
+ return scores.length?scores[0].d:1;
+}
 
-function r2(ts,ys,co){if(!co)return NaN;const mean=ys.reduce((a,b)=>a+b,0)/ys.length;let se=0,st=0;ts.forEach((t,i)=>{const f=co.reduce((a,c0,j)=>a+c0*Math.pow(t,j),0);se+=(ys[i]-f)**2;st+=(ys[i]-mean)**2;});return st>0?1-se/st:NaN;}
+/* ============================================================
+   Refresh
+   ============================================================ */
 function refresh(){
  const R=compute();S.R=R;
- $('tb').innerHTML='<tr><th>t (s)</th><th>x (m)</th><th>y (m)</th><th>vx (m/s)</th><th>vy (m/s)</th><th>v (m/s)</th><th>'+tr('KE (J)')+'</th><th>'+tr('PE (J)')+'</th><th>'+tr('ME (J)')+'</th><th>ax (m/s²)</th><th>ay (m/s²)</th></tr>'+
-  R.map((r,i)=>'<tr data-i="'+i+'" style="cursor:pointer">'+[r.t,r.x,r.y,r.vx,r.vy,r.v,r.Ec,r.Ep,r.Em,r.ax,r.ay].map(a=>'<td>'+fmt(a)+'</td>').join('')+'</tr>').join('');
- if(R.length){const ts=R.map(r=>r.t),cx=polyfit(ts,R.map(r=>r.x),+$('dx').value),cy=polyfit(ts,R.map(r=>r.y),+$('dy').value);
-  let s=eqStr('x',cx)+' (m)  R² = '+fmt(r2(ts,R.map(r=>r.x),cx))+'\n'+eqStr('y',cy)+' (m)  R² = '+fmt(r2(ts,R.map(r=>r.y),cy));
+ const header='<tr><th>t (s)</th><th>x (m)</th><th>y (m)</th><th>vx (m/s)</th><th>vy (m/s)</th><th>v (m/s)</th><th>'+tr('KE (J)')+'</th><th>'+tr('PE (J)')+'</th><th>'+tr('ME (J)')+'</th><th>ax (m/s²)</th><th>ay (m/s²)</th></tr>';
+ $('tb').innerHTML='<thead>'+header+'</thead><tbody>'+R.map((r,i)=>
+  '<tr data-i="'+i+'"'+(i===S.tableSel?' class="sel"':'')+'>'+
+  [r.t,r.x,r.y,r.vx,r.vy,r.v,r.Ec,r.Ep,r.Em,r.ax,r.ay].map(a=>'<td>'+fmt(a)+'</td>').join('')+'</tr>'
+ ).join('')+'</tbody>';
+
+ const n=R.length;
+ $('statN').textContent=n;
+ $('statFps').textContent=fmt(fps());
+ $('statG').textContent='—';$('statGErr').textContent='—';$('statDE').textContent='—';$('statV').textContent='—';
+ if(n>=2){
+  const vmax=Math.max(...R.map(r=>r.v).filter(isFinite));
+  $('statV').textContent=fmt(vmax)+' m/s';
+  const dE=R[n-1].Em-R[0].Em;
+  $('statDE').textContent=fmt(dE)+' J';
+  const ts=R.map(r=>r.t),ys=R.map(r=>r.y);
+  const co2=polyfit(ts,ys,2);
+  if(co2&&co2[2]){
+   const gExp=2*co2[2];
+   const cov=polyfitCov(ts,ys,2);
+   const sC=cov?Math.sqrt(Math.abs(cov[2][2])):NaN;
+   const sG=isFinite(sC)?2*sC:NaN;
+   $('statG').textContent=fmt(Math.abs(gExp))+' m/s²';
+   $('statGErr').textContent=isFinite(sG)?('± '+fmt(sG)):'—';
+   const theoretical=+$('g').value;
+   const rel=Math.abs(Math.abs(gExp)-theoretical)/theoretical;
+   const el=$('statG');
+   el.style.color=rel<0.03?'var(--ok)':rel<0.1?'var(--warn)':'var(--err)';
+  }
+ }
+
+ if(R.length>=2){
+  const ts=R.map(r=>r.t);
+  const dx=$('autoDeg').checked?autoDegree(ts,R.map(r=>r.x)):+$('dx').value;
+  const dy=$('autoDeg').checked?autoDegree(ts,R.map(r=>r.y)):+$('dy').value;
+  const cx=polyfit(ts,R.map(r=>r.x),dx);
+  const cy=polyfit(ts,R.map(r=>r.y),dy);
+  let s=eqStr('x',cx)+' (m)  R² = '+fmt(r2(ts,R.map(r=>r.x),cx))+'\n'+
+        eqStr('y',cy)+' (m)  R² = '+fmt(r2(ts,R.map(r=>r.y),cy));
   if(cx)s+='\nvx(t) = '+fmt(cx[1]||0)+(cx[2]?(cx[2]<0?' − ':' + ')+fmt(2*Math.abs(cx[2]))+'·t':'')+' (m/s)';
   if(cy)s+='\nvy(t) = '+fmt(cy[1]||0)+(cy[2]?(cy[2]<0?' − ':' + ')+fmt(2*Math.abs(cy[2]))+'·t':'')+' (m/s)';
+  if(cx&&cx[2])s+='\nax = '+fmt(2*cx[2])+' m/s²';
+  if(cy&&cy[2])s+='\nay = '+fmt(2*cy[2])+' m/s²';
   $('eq').textContent=s;
-  const L=R[R.length-1];$('fin').textContent='t = '+fmt(L.t)+' s\nx = '+fmt(L.x)+' m   y = '+fmt(L.y)+' m\nvx = '+fmt(L.vx)+' m/s   vy = '+fmt(L.vy)+' m/s\nv = '+fmt(L.v)+' m/s\n'+tr('KE')+' = '+fmt(L.Ec)+' J\n'+tr('PE')+' = '+fmt(L.Ep)+' J  '+tr('(ref.: y = 0 at the origin)')+'\n'+tr('ME')+' = '+fmt(L.Em)+' J';
-  const sc=Math.max(Math.max(...R.map(r=>r.Ec).filter(isFinite)),Math.max(...R.map(r=>r.Ep))-Math.min(...R.map(r=>r.Ep))),dE=L.Em-R[0].Em,pc=sc>0?dE/sc*100:NaN;
+  const L=R[R.length-1];
+  $('fin').textContent='t = '+fmt(L.t)+' s\nx = '+fmt(L.x)+' m   y = '+fmt(L.y)+' m\nvx = '+fmt(L.vx)+' m/s   vy = '+fmt(L.vy)+' m/s\nv = '+fmt(L.v)+' m/s\n'+tr('KE')+' = '+fmt(L.Ec)+' J\n'+tr('PE')+' = '+fmt(L.Ep)+' J  '+tr('(ref.: y = 0 at the origin)')+'\n'+tr('ME')+' = '+fmt(L.Em)+' J';
+  const sc=Math.max(Math.max(...R.map(r=>r.Ec).filter(isFinite)),Math.max(...R.map(r=>r.Ep))-Math.min(...R.map(r=>r.Ep)));
+  const dE=L.Em-R[0].Em,pc=sc>0?dE/sc*100:NaN;
   $('fin').textContent+='\n\n'+tr('Time step: ')+fmt(R[1]?R[1].t-R[0].t:NaN)+' s · '+tr('Scale: ')+fmt(S.scale)+' m/px';
-  if(isFinite(pc)&&R.length>2)$('fin').textContent+='\n'+tr('ΔEm (last − first) = ')+fmt(dE)+' J ('+fmt(pc)+' % '+tr('of exchanged energy')+')\n'+(Math.abs(pc)<5?tr('Mechanical energy ≈ conserved.'):Math.abs(pc)<15?tr('Small change in mechanical energy.'):tr('Large change: friction, or check scale and frames/s.'))+' '+tr('Includes tracking noise.');
- }else{$('eq').textContent='—';$('fin').textContent='—';}
+  if(isFinite(pc)&&R.length>2){
+   $('fin').textContent+='\n'+tr('ΔEm (last − first) = ')+fmt(dE)+' J ('+fmt(pc)+' % '+tr('of exchanged energy')+')\n'+
+    (Math.abs(pc)<5?tr('Mechanical energy ≈ conserved.'):Math.abs(pc)<15?tr('Small change in mechanical energy.'):tr('Large change: friction, or check scale and frames/s.'))+' '+tr('Includes tracking noise.');
+  }
+ } else {$('eq').textContent='—';$('fin').textContent='—';}
+
  chart(R);draw();
 }
-['dx','dy','m','g'].forEach(i=>$(i).onchange=refresh);
+['dx','dy','m','g','autoDeg'].forEach(i=>$(i).onchange=refresh);
 
-function addPt(px,py){const k=frame(),p={k,t:k/fps(),px,py},i=S.pts.findIndex(q=>q.k===k);if(i>=0)S.pts[i]=p;else{S.pts.push(p);S.pts.sort((a,b)=>a.k-b.k);}}
+function addPt(px,py){
+ const k=frame(),p={k,t:k/fps(),px,py},i=S.pts.findIndex(q=>q.k===k);
+ if(i>=0)S.pts[i]=p;else{S.pts.push(p);S.pts.sort((a,b)=>a.k-b.k);}
+}
+
+/* ============================================================
+   Auto-tracking primitives
+   ============================================================ */
 const PC=document.createElement('canvas'),pctx=PC.getContext('2d',{willReadFrequently:true});
-function grab(){const k=Math.min(1,640/c.width);PC.width=Math.round(c.width*k);PC.height=Math.round(c.height*k);S.k=c.width/PC.width;
- pctx.drawImage(v,0,0,PC.width,PC.height);const d=pctx.getImageData(0,0,PC.width,PC.height).data,n=PC.width*PC.height,gr=new Float32Array(n);
- S.rgb=d;for(let i=0;i<n;i++)gr[i]=.299*d[4*i]+.587*d[4*i+1]+.114*d[4*i+2];return gr;}
-function mkTpl(gr,cx,cy,h){const W=PC.width,N=(2*h+1)**2,t=new Float32Array(N);let sum=0,i=0;
+function grab(){
+ const k=Math.min(1,640/c.width);
+ PC.width=Math.round(c.width*k);PC.height=Math.round(c.height*k);
+ S.k=c.width/PC.width;
+ pctx.drawImage(v,0,0,PC.width,PC.height);
+ const d=pctx.getImageData(0,0,PC.width,PC.height).data,n=PC.width*PC.height,gr=new Float32Array(n);
+ S.rgb=d;
+ for(let i=0;i<n;i++)gr[i]=.299*d[4*i]+.587*d[4*i+1]+.114*d[4*i+2];
+ return gr;
+}
+function mkTpl(gr,cx,cy,h){
+ const W=PC.width,N=(2*h+1)**2,t=new Float32Array(N);let sum=0,i=0;
  for(let y=-h;y<=h;y++)for(let x=-h;x<=h;x++){const q=gr[(cy+y)*W+cx+x];t[i++]=q;sum+=q;}
- const mean=sum/N;let nn=0;for(let j=0;j<N;j++){t[j]-=mean;nn+=t[j]*t[j];}return{t,h,N,nn:Math.sqrt(nn)||1};}
-function match(gr,T,cx,cy,R){const W=PC.width,H=PC.height,h=T.h;let best=-2,bx=cx,by=cy;
- for(let y0=Math.max(h,cy-R);y0<=Math.min(H-h-1,cy+R);y0++)for(let x0=Math.max(h,cx-R);x0<=Math.min(W-h-1,cx+R);x0++){
+ const mean=sum/N;let nn=0;
+ for(let j=0;j<N;j++){t[j]-=mean;nn+=t[j]*t[j];}
+ return{t,h,N,nn:Math.sqrt(nn)||1};
+}
+function match(gr,T,cx,cy,R){
+ const W=PC.width,H=PC.height,h=T.h;let best=-2,bx=cx,by=cy;
+ for(let y0=Math.max(h,cy-R);y0<=Math.min(H-h-1,cy+R);y0++)
+ for(let x0=Math.max(h,cx-R);x0<=Math.min(W-h-1,cx+R);x0++){
   let sp=0,spp=0,spt=0,i=0;
   for(let y=-h;y<=h;y++){const o=(y0+y)*W+x0-h;for(let x=0;x<=2*h;x++){const q=gr[o+x];sp+=q;spp+=q*q;spt+=q*T.t[i++];}}
-  const vr=spp-sp*sp/T.N;if(vr<1e-6)continue;const r=spt/(Math.sqrt(vr)*T.nn);if(r>best){best=r;bx=x0;by=y0;}}
- return{x:bx,y:by,s:best};}
-function medColor(rgb,cx,cy){const W=PC.width,H=PC.height,ch=[[],[],[]];
- for(let y=-2;y<=2;y++)for(let x=-2;x<=2;x++){const xx=Math.min(Math.max(cx+x,0),W-1),yy=Math.min(Math.max(cy+y,0),H-1),i=4*(yy*W+xx);for(let q=0;q<3;q++)ch[q].push(rgb[i+q]);}
- return ch.map(a=>{a.sort((p1,p2)=>p1-p2);return a[12];});}
+  const vr=spp-sp*sp/T.N;if(vr<1e-6)continue;
+  const r=spt/(Math.sqrt(vr)*T.nn);if(r>best){best=r;bx=x0;by=y0;}
+ }
+ return{x:bx,y:by,s:best};
+}
+function medColor(rgb,cx,cy){
+ const W=PC.width,H=PC.height,ch=[[],[],[]],R=2;
+ for(let y=-R;y<=R;y++)for(let x=-R;x<=R;x++){
+  const xx=clamp(cx+x,0,W-1),yy=clamp(cy+y,0,H-1),i=4*(yy*W+xx);
+  for(let q=0;q<3;q++)ch[q].push(rgb[i+q]);
+ }
+ return ch.map(a=>{a.sort((p1,p2)=>p1-p2);return a[12];});
+}
 function pickBlob(rgb,col,tol,qx,qy,R,A0){
- const W=PC.width,H=PC.height,t2=tol*tol,x0=Math.max(0,qx-R),x1=Math.min(W-1,qx+R),y0=Math.max(0,qy-R),y1=Math.min(H-1,qy+R),w=x1-x0+1,h=y1-y0+1;
+ const W=PC.width,H=PC.height,t2=tol*tol;
+ const x0=Math.max(0,qx-R),x1=Math.min(W-1,qx+R);
+ const y0=Math.max(0,qy-R),y1=Math.min(H-1,qy+R);
+ const w=x1-x0+1,h=y1-y0+1;
  if(w<1||h<1)return null;
  const m=new Uint8Array(w*h);
- for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=4*((y+y0)*W+x+x0),dr=rgb[i]-col[0],dg=rgb[i+1]-col[1],db=rgb[i+2]-col[2];if(dr*dr+dg*dg+db*db<t2)m[y*w+x]=1;}
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  const i=4*((y+y0)*W+x+x0),dr=rgb[i]-col[0],dg=rgb[i+1]-col[1],db=rgb[i+2]-col[2];
+  if(dr*dr+dg*dg+db*db<t2)m[y*w+x]=1;
+ }
  let best=null,bd=1e9;
- for(let s0=0;s0<w*h;s0++){if(m[s0]!==1)continue;const st=[s0];m[s0]=2;let sx=0,sy=0,n=0;
-  while(st.length){const p=st.pop(),x=p%w,y=(p-x)/w;sx+=x;sy+=y;n++;
-   if(x>0&&m[p-1]===1){m[p-1]=2;st.push(p-1);}if(x<w-1&&m[p+1]===1){m[p+1]=2;st.push(p+1);}
-   if(y>0&&m[p-w]===1){m[p-w]=2;st.push(p-w);}if(y<h-1&&m[p+w]===1){m[p+w]=2;st.push(p+w);}}
-  if(n<Math.max(3,.2*A0))continue;
-  const mx=sx/n+x0,my=sy/n+y0,d=Math.hypot(mx-qx,my-qy);if(d<bd){bd=d;best={x:mx,y:my,n};}}
+ const minSize=Math.max(8,A0>0?.2*A0:8);
+ for(let s0=0;s0<w*h;s0++){
+  if(m[s0]!==1)continue;
+  const st=[s0];m[s0]=2;
+  let sx=0,sy=0,n=0;
+  while(st.length){
+   const p=st.pop(),x=p%w,y=(p-x)/w;
+   sx+=x;sy+=y;n++;
+   if(x>0&&m[p-1]===1){m[p-1]=2;st.push(p-1);}
+   if(x<w-1&&m[p+1]===1){m[p+1]=2;st.push(p+1);}
+   if(y>0&&m[p-w]===1){m[p-w]=2;st.push(p-w);}
+   if(y<h-1&&m[p+w]===1){m[p+w]=2;st.push(p+w);}
+  }
+  if(n<minSize)continue;
+  const mx=sx/n+x0,my=sy/n+y0,d=Math.hypot(mx-qx,my-qy);
+  if(d<bd){bd=d;best={x:mx,y:my,n};}
+ }
  if(!best)return null;
- const rb=Math.sqrt(best.n/Math.PI)*2+2;let sx=0,sy=0,n=0;const pts=[];
- for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(m[y*w+x]&&Math.hypot(x+x0-best.x,y+y0-best.y)<rb){sx+=x+x0;sy+=y+y0;n++;if(pts.length<800)pts.push(x+x0,y+y0);}
+ const rb=Math.sqrt(best.n/Math.PI)*2+2;
+ let sx=0,sy=0,n=0;const pts=[];
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++)
+  if(m[y*w+x]&&Math.hypot(x+x0-best.x,y+y0-best.y)<rb){
+   sx+=x+x0;sy+=y+y0;n++;
+   if(pts.length<800)pts.push(x+x0,y+y0);
+  }
  return{x:sx/n,y:sy/n,n,pts};
 }
+
+/* ============================================================
+   Auto loop
+   ============================================================ */
 async function startAuto(x,y){
  if(!S.scale||!S.orig){say(tr('Set the scale and the origin first.'));return;}
  S.stop=false;S.mode=null;
- const stp=+$('step').value||1,thr=+$('thr').value||.5,meth=$('meth').value,tol=+$('tol').value||60;
- let gr=grab();const k=S.k,h=Math.max(2,Math.round((+$('tsz').value||10)/k)),R=Math.max(3,Math.round((+$('rad').value||40)/k));
- let cx=Math.min(Math.max(Math.round(x/k),h),PC.width-h-1),cy=Math.min(Math.max(Math.round(y/k),h),PC.height-h-1);
- let T=null,col=null,A0=0,bh=h*k,n=0,vx=0,vy=0,end=tr('Tracking finished.');
- if(meth==='tpl')T=mkTpl(gr,cx,cy,h);
- else{col=medColor(S.rgb,cx,cy);const b=pickBlob(S.rgb,col,tol,cx,cy,R,0);
-  if(!b){setMode(null);say(tr('Object color not detected: click at the center of the object or increase the tolerance.'));return;}
-  cx=b.x;cy=b.y;A0=b.n;S.blob=b.pts;bh=(Math.sqrt(b.n/Math.PI)+4)*k;}
- addPt(cx*k,cy*k);S.box={x:cx*k,y:cy*k,h:bh};
- while(!S.stop){
-  const nt=v.currentTime+stp*dt();if(nt>v.duration-1e-3){end=tr('End of video reached.');break;}
-  await seek(nt);gr=grab();
-  const qx=Math.round(cx+vx),qy=Math.round(cy+vy);let info='';
-  if(meth==='tpl'){
-   let r=match(gr,T,qx,qy,R);if(r.s<thr)r=match(gr,T,qx,qy,3*R);
-   if(r.s<thr){end=tr('Tracking lost at t = ')+fmt(v.currentTime)+tr(' s (confidence ')+fmt(r.s)+tr('). Try the Color method, or shrink the template so it fits the object.');break;}
-   vx=r.x-cx;vy=r.y-cy;cx=r.x;cy=r.y;info=tr('confidence ')+fmt(r.s);
-   if($('upd').checked&&r.s>.9)T=mkTpl(gr,cx,cy,h);
-  }else{
-   let b=pickBlob(S.rgb,col,tol,qx,qy,R,A0);if(!b)b=pickBlob(S.rgb,col,tol,qx,qy,3*R,A0);
-   if(!b){end=tr('Object not found at t = ')+fmt(v.currentTime)+tr(' s. Increase the color tolerance or the radius, and check the frames/s and the step.');break;}
-   vx=b.x-cx;vy=b.y-cy;cx=b.x;cy=b.y;S.blob=b.pts;bh=(Math.sqrt(b.n/Math.PI)+4)*k;info=b.n+tr(' px detected');
-  }
-  addPt(cx*k,cy*k);S.box={x:cx*k,y:cy*k,h:bh};
-  if(++n%5===0)refresh();draw();say(tr('Tracking… frame ')+frame()+' ('+info+')');
-  await new Promise(ok=>setTimeout(ok));
+ MODE_IDS.forEach(b=>$(b).classList.remove('on'));
+ const stp=+$('step').value||1,thr=+$('thr').value||.5;
+ const meth=$('meth').value,tol=+$('tol').value||60;
+ let gr=grab();
+ const k=S.k,h=Math.max(2,Math.round((+$('tsz').value||10)/k));
+ const R=Math.max(3,Math.round((+$('rad').value||40)/k));
+ let cx=clamp(Math.round(x/k),h,PC.width-h-1);
+ let cy=clamp(Math.round(y/k),h,PC.height-h-1);
+ let T=null,col=null,A0=0,bh=h*k,n=0,vx=0,vy=0;
+ let end=tr('Tracking finished.');
+
+ if(meth==='tpl'){T=mkTpl(gr,cx,cy,h);}
+ else{
+  col=medColor(S.rgb,cx,cy);
+  const b=pickBlob(S.rgb,col,tol,cx,cy,R,0);
+  if(!b){say(tr('Object color not detected: click at the center of the object or increase the tolerance.'));return;}
+  cx=b.x;cy=b.y;A0=b.n;S.blob=b.pts;
+  bh=(Math.sqrt(b.n/Math.PI)+4)*k;
  }
- if(S.stop)end=tr('Tracking stopped.');S.box=null;S.blob=null;setMode(null);say(end);refresh();
+ addPt(cx*k,cy*k);S.box={x:cx*k,y:cy*k,h:bh};
+
+ const setConf=(s)=>{const b=$('hudConf');b.style.display='';b.textContent='conf '+fmt(s);
+  b.className='badge '+(s>0.85?'ok':s>0.6?'warn':'err');};
+
+ try{
+  while(!S.stop){
+   const nt=v.currentTime+stp*dt();
+   if(nt>v.duration-1e-3){end=tr('End of video reached.');break;}
+   await seek(nt);gr=grab();
+   const qx=Math.round(cx+vx),qy=Math.round(cy+vy);
+   let info='';
+   if(meth==='tpl'){
+    let r=match(gr,T,qx,qy,R);
+    if(r.s<thr)r=match(gr,T,qx,qy,3*R);
+    if(r.s<thr){
+     end=tr('Tracking lost at t = ')+fmt(v.currentTime)+tr(' s (confidence ')+fmt(r.s)+
+         tr('). Try the Color method, or shrink the template so it fits the object.');
+     break;
+    }
+    vx=r.x-cx;vy=r.y-cy;cx=r.x;cy=r.y;setConf(r.s);
+    info=tr('confidence ')+fmt(r.s);
+    if($('upd').checked&&r.s>.9)T=mkTpl(gr,cx,cy,h);
+   } else {
+    let b=pickBlob(S.rgb,col,tol,qx,qy,R,A0);
+    if(!b)b=pickBlob(S.rgb,col,tol,qx,qy,3*R,A0);
+    if(!b){
+     end=tr('Object not found at t = ')+fmt(v.currentTime)+
+         tr(' s. Increase the color tolerance or the radius, and check the frames/s and the step.');
+     break;
+    }
+    vx=b.x-cx;vy=b.y-cy;cx=b.x;cy=b.y;S.blob=b.pts;
+    bh=(Math.sqrt(b.n/Math.PI)+4)*k;info=b.n+tr(' px detected');
+    setConf(Math.min(1,b.n/Math.max(A0,1)));
+   }
+   addPt(cx*k,cy*k);S.box={x:cx*k,y:cy*k,h:bh};
+   if(++n%5===0){refresh();draw();}
+   say(tr('Tracking… frame ')+frame()+' ('+info+')');
+   await new Promise(ok=>setTimeout(ok));
+  }
+ } finally {
+  if(S.stop)end=tr('Tracking stopped.');
+  S.box=null;S.blob=null;
+  MODE_IDS.forEach(b=>$(b).classList.remove('on'));
+  S.mode=null;
+  $('hudConf').style.display='none';
+  say(end);refresh();
+ }
 }
 
+/* ============================================================
+   Charts
+   ============================================================ */
 function plot(id,series,xl,yl,title){
- const cv=$(id),x=cv.getContext('2d'),W=cv.width,H=cv.height;x.clearRect(0,0,W,H);
+ const cv=$(id),x=cv.getContext('2d'),W=cv.width,H=cv.height;
+ x.clearRect(0,0,W,H);
  const fg=css('--fg')||'#888',mut=css('--mut')||'#888';
  x.fillStyle=fg;x.font='bold 13px sans-serif';x.fillText(tr(title),10,16);
- const all=series.flatMap(s=>s.Y).filter(isFinite),allx=series[0].X;
- if(!all.length){x.fillStyle=mut;x.font='13px sans-serif';x.fillText(tr('No data yet.'),20,50);return;}
+ const all=series.flatMap(s=>s.Y).filter(isFinite);
+ const allx=series[0].X.filter(isFinite);
+ if(!all.length||!allx.length){x.fillStyle=mut;x.font='13px sans-serif';x.fillText(tr('No data yet.'),20,50);return;}
  let a=Math.min(...allx),b=Math.max(...allx),c0=Math.min(...all),c1=Math.max(...all);
- if(a===b){a-=1;b+=1;}if(c0===c1){c0-=1;c1+=1;}const pd=(c1-c0)*.08;c0-=pd;c1+=pd;
- const L=56,T=30,Rr=W-14,B=H-34,X=t=>L+(t-a)/(b-a)*(Rr-L),Y=q=>B-(q-c0)/(c1-c0)*(B-T);
+ if(a===b){a-=1;b+=1;}if(c0===c1){c0-=1;c1+=1;}
+ const pd=(c1-c0)*.08;c0-=pd;c1+=pd;
+ const L=58,T=30,Rr=W-14,B=H-34;
+ const X=t=>L+(t-a)/(b-a)*(Rr-L),Y=q=>B-(q-c0)/(c1-c0)*(B-T);
  x.strokeStyle=mut;x.fillStyle=mut;x.font='11px sans-serif';x.lineWidth=1;
  x.beginPath();x.moveTo(L,T);x.lineTo(L,B);x.lineTo(Rr,B);x.stroke();
- for(let i=0;i<=5;i++){const tx=a+(b-a)*i/5,ty=c0+(c1-c0)*i/5;x.fillText(fmt(tx),X(tx)-10,B+14);x.fillText(fmt(ty),2,Y(ty)+4);
-  x.globalAlpha=.2;x.beginPath();x.moveTo(L,Y(ty));x.lineTo(Rr,Y(ty));x.stroke();x.globalAlpha=1;}
+ for(let i=0;i<=5;i++){
+  const tx=a+(b-a)*i/5,ty=c0+(c1-c0)*i/5;
+  x.fillText(fmt(tx),X(tx)-10,B+14);
+  x.fillText(fmt(ty),2,Y(ty)+4);
+  x.globalAlpha=.2;x.beginPath();x.moveTo(L,Y(ty));x.lineTo(Rr,Y(ty));x.stroke();x.globalAlpha=1;
+ }
  x.fillStyle=fg;x.fillText(xl,Rr-70,H-4);x.fillText(tr(yl),L+6,T-4);
- series.forEach((s,j)=>{x.strokeStyle=s.col;x.fillStyle=s.col;x.lineWidth=2;x.beginPath();let pen=false;
-  s.X.forEach((t,i)=>{const q=s.Y[i];if(!isFinite(q)){pen=false;return;}pen?x.lineTo(X(t),Y(q)):x.moveTo(X(t),Y(q));pen=true;});x.stroke();
-  s.X.forEach((t,i)=>{if(isFinite(s.Y[i])){x.beginPath();x.arc(X(t),Y(s.Y[i]),2.5,0,7);x.fill();}});
-  if(series.length>1)x.fillText(tr(s.n),Rr-40,T+14+j*14);});
+ series.forEach((s,j)=>{
+  x.strokeStyle=s.col;x.fillStyle=s.col;x.lineWidth=2;
+  x.beginPath();let pen=false;
+  s.X.forEach((t,i)=>{const q=s.Y[i];if(!isFinite(q)){pen=false;return;}pen?x.lineTo(X(t),Y(q)):x.moveTo(X(t),Y(q));pen=true;});
+  x.stroke();
+  s.X.forEach((t,i)=>{if(isFinite(s.Y[i])){x.beginPath();x.arc(X(t),Y(s.Y[i]),2.5,0,Math.PI*2);x.fill();}});
+  if(series.length>1)x.fillText(tr(s.n),Rr-40,T+14+j*14);
+ });
 }
 function chart(R){
  const t=R.map(r=>r.t),f=k=>R.map(r=>r[k]);
@@ -287,21 +1071,114 @@ function chart(R){
  plot('c2',[{n:'v',col:'#ef4444',X:t,Y:f('v')},{n:'vx',col:'#f97316',X:t,Y:f('vx')},{n:'vy',col:'#3b82f6',X:t,Y:f('vy')}],'t (s)','speed (m/s)','Speed v(t) and components vx(t), vy(t)');
  plot('c3',[{n:'KE',col:'#ef4444',X:t,Y:f('Ec')},{n:'PE',col:'#3b82f6',X:t,Y:f('Ep')},{n:'ME',col:'#22c55e',X:t,Y:f('Em')}],'t (s)','energy (J)','Kinetic, potential and mechanical energy');
  plot('c4',[{n:'y(x)',col:'#f97316',X:f('x'),Y:f('y')}],'x (m)','y (m)','Trajectory y(x)');
- const fx=polyfit(t,f('x'),+$('dx').value),fy=polyfit(t,f('y'),+$('dy').value),res=(co,k)=>co?R.map(r=>r[k]-co.reduce((a,c0,j)=>a+c0*Math.pow(r.t,j),0)):R.map(()=>NaN);
+ const fx=polyfit(t,f('x'),+$('dx').value);
+ const fy=polyfit(t,f('y'),+$('dy').value);
+ if(!fx||!fy){$('c5').getContext('2d').clearRect(0,0,640,300);return;}
+ const res=(co,k)=>co?R.map(r=>r[k]-co.reduce((a,c0,j)=>a+c0*Math.pow(r.t,j),0)):R.map(()=>NaN);
  plot('c5',[{n:'x',col:'#f97316',X:t,Y:res(fx,'x')},{n:'y',col:'#3b82f6',X:t,Y:res(fy,'y')}],'t (s)','residual (m)','Fit residuals (data − fit)');
 }
-$('cp').onclick=async()=>{const R=compute();const tsv='t\tx\ty\tvx\tvy\tv\t'+tr('KE')+'\t'+tr('PE')+'\t'+tr('ME')+'\n'+R.map(r=>[r.t,r.x,r.y,r.vx,r.vy,r.v,r.Ec,r.Ep,r.Em].join('\t')).join('\n');
- try{await navigator.clipboard.writeText(tsv);$('cpm').textContent=tr('Copied.');}catch(e){$('cpm').textContent=tr('Copy blocked: select the table by hand.');}};
-$('lEN').onclick=()=>setLang('en');$('lFR').onclick=()=>setLang('fr');
+$('gTabs').onclick=e=>{
+ const b=e.target.closest('button[data-g]');if(!b)return;
+ [...$('gTabs').children].forEach(x=>x.classList.toggle('on',x===b));
+ ['c1','c2','c3','c4','c5'].forEach(id=>$(id).style.display=(id===b.dataset.g?'':'none'));
+};
+
+/* ============================================================
+   Export
+   ============================================================ */
+function tsvData(){
+ const R=compute();
+ const head=['t','x','y','vx','vy','v',tr('KE'),tr('PE'),tr('ME'),'ax','ay'];
+ const rows=R.map(r=>[r.t,r.x,r.y,r.vx,r.vy,r.v,r.Ec,r.Ep,r.Em,r.ax,r.ay]);
+ return {head,rows};
+}
+$('cp').onclick=async()=>{
+ const {head,rows}=tsvData();
+ const tsv=head.join('\t')+'\n'+rows.map(r=>r.map(x=>isFinite(x)?x:'').join('\t')).join('\n');
+ try{await navigator.clipboard.writeText(tsv);$('cpm').textContent=tr('Copied.');}
+ catch(e){$('cpm').textContent=tr('Copy blocked: select the table by hand.');}
+};
+$('csv').onclick=()=>{
+ const {head,rows}=tsvData();
+ const sep=LANG==='fr'?';':',';
+ const dec=LANG==='fr'?',':'.';
+ const fmtC=v=>isFinite(v)?String(v).replace('.',dec):'';
+ const csv=[head.join(sep)].concat(rows.map(r=>r.map(fmtC).join(sep))).join('\n');
+ download('tracking.csv',csv,'text/csv');
+ $('cpm').textContent=tr('CSV downloaded.');
+};
+$('jsn').onclick=()=>{
+ const R=compute();
+ const data={fps:fps(),scale:S.scale,orig:S.orig,mass:+$('m').value,g:+$('g').value,
+  points:S.pts.map(p=>({k:p.k,t:p.t,px:p.px,py:p.py})),
+  rows:R.map(r=>({t:r.t,x:r.x,y:r.y,vx:r.vx,vy:r.vy,v:r.v,Ec:r.Ec,Ep:r.Ep,Em:r.Em,ax:r.ax,ay:r.ay}))};
+ download('tracking.json',JSON.stringify(data,null,2),'application/json');
+ $('cpm').textContent=tr('JSON downloaded.');
+};
+function download(name,content,mime){
+ const b=new Blob([content],{type:mime+';charset=utf-8'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(b);a.download=name;
+ document.body.appendChild(a);a.click();
+ setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+}
+
+/* ============================================================
+   Printing
+   ============================================================ */
+function printMode(mode){
+ document.body.classList.remove('print-table-only','print-graph-only');
+ const restore=[];
+ const setDisp=(el,v)=>{if(el){restore.push([el,el.style.display]);el.style.display=v;}};
+ if(mode==='table'){
+  document.body.classList.add('print-table-only');
+ }else if(mode==='graph'){
+  document.body.classList.add('print-graph-only');
+  ['c1','c2','c3','c4','c5'].forEach(id=>setDisp($(id),''));
+ }else if(mode==='current-graph'){
+  document.body.classList.add('print-graph-only');
+  const cur=[...$('gTabs').children].find(b=>b.classList.contains('on'));
+  const curId=cur?cur.dataset.g:'c1';
+  ['c1','c2','c3','c4','c5'].forEach(id=>setDisp($(id),id===curId?'':'none'));
+ }
+ window.addEventListener('afterprint',()=>{
+  document.body.classList.remove('print-table-only','print-graph-only');
+  restore.forEach(([el,d])=>{el.style.display=d;});
+ },{once:true});
+ requestAnimationFrame(()=>setTimeout(()=>window.print(),50));
+}
+$('prTab').onclick=()=>{ if(!S.R||!S.R.length){say(tr('No data yet.'));return;} printMode('table'); };
+$('prRep').onclick=()=>{ if(!S.R||!S.R.length){say(tr('No data yet.'));return;} printMode('all'); };
+$('prGraph').onclick=()=>{ if(!S.R||!S.R.length){say(tr('No data yet.'));return;} printMode('current-graph'); };
+$('prAllGraph').onclick=()=>{ if(!S.R||!S.R.length){say(tr('No data yet.'));return;} printMode('graph'); };
+
+/* ============================================================
+   Init
+   ============================================================ */
+try{$('cpyear').textContent=new Date().getFullYear();}catch(e){}
+$('lEN').onclick=()=>setLang('en');
+$('lFR').onclick=()=>setLang('fr');
 applyLang();
 </script>
 <script>
 (function(){
- const sp=document.getElementById('splash');if(sp)setTimeout(()=>{sp.classList.add('hide');setTimeout(()=>sp.remove(),450);},900);
+ const sp=document.getElementById('splash');
+ if(sp)setTimeout(()=>{sp.classList.add('hide');setTimeout(()=>sp.remove(),450);},900);
  if(!('serviceWorker' in navigator)||!/^https?:$/.test(location.protocol))return;
  const had=!!navigator.serviceWorker.controller;let done=false;
- function toast(){const d=document.createElement('div');d.id='upd';d.innerHTML='<span></span><button></button>';d.firstChild.textContent=tr('New version available.');d.lastChild.textContent=tr('Reload');d.lastChild.onclick=()=>location.reload();document.body.appendChild(d);}
- navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!had||done)return;done=true;if(S.pts.length===0)location.reload();else toast();});
- window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').then(r=>{setInterval(()=>r.update(),3600000);}).catch(()=>{}));
+ function toast(){
+  const d=document.createElement('div');d.id='upd';
+  d.innerHTML='<span></span><button></button>';
+  d.firstChild.textContent=tr('New version available.');
+  d.lastChild.textContent=tr('Reload');
+  d.lastChild.onclick=()=>location.reload();
+  document.body.appendChild(d);
+ }
+ navigator.serviceWorker.addEventListener('controllerchange',()=>{
+  if(!had||done)return;done=true;
+  if(S.pts.length===0)location.reload();else toast();
+ });
+ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js')
+  .then(r=>setInterval(()=>r.update(),3600000)).catch(()=>{}));
 })();
 </script></body></html>
