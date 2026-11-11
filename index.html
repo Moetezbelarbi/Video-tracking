@@ -73,19 +73,10 @@ details[open] summary::before{transform:rotate(90deg)}
 #upd{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:98;display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:10px}
 #upd button{background:var(--ac);color:#fff;border-color:var(--ac)}
 .kbd{font:11px/1 ui-monospace,Menlo,monospace;padding:2px 6px;background:var(--card);border:1px solid var(--bd);border-radius:4px;color:var(--mut)}
-
-/* ===== Copyright ===== */
-footer.credit{
-  text-align:center;
-  color:var(--mut);
-  font-size:13px;
-  padding:18px 8px 24px;
-  border-top:1px solid var(--bd);
-  margin-top:20px;
-}
+footer.credit{text-align:center;color:var(--mut);font-size:13px;padding:18px 8px 24px;border-top:1px solid var(--bd);margin-top:20px}
 footer.credit b{color:var(--ac);font-weight:600}
 .print-only{display:none}
-
+.warn{color:var(--warn);font-weight:600}
 /* ===== PRINT ===== */
 @media print{
   @page{size:A4 portrait;margin:12mm}
@@ -93,8 +84,7 @@ footer.credit b{color:var(--ac);font-weight:600}
   main{max-width:none;padding:0}
   button,#up,#cam,.toolbar,.zoom,.hud,.tabs,details,#splash,#upd,
   #gTabs,.msg,.kbd,video,#thm,#lEN,#lFR,#fpsbadge,
-  .card > .row:first-child,
-  .stage{display:none !important}
+  .card > .row:first-child,.stage{display:none !important}
   .card{break-inside:avoid;page-break-inside:avoid;border:1px solid #999 !important;background:#fff !important;margin-bottom:10px;padding:8px}
   .stat{background:#fff !important;border:1px solid #999 !important;color:#000 !important}
   .stat b,.stat span{color:#000 !important}
@@ -106,27 +96,12 @@ footer.credit b{color:var(--ac);font-weight:600}
   tbody tr.sel{outline:none !important;background:transparent !important}
   .ch{background:#fff !important;border:1px solid #999 !important;page-break-inside:avoid;width:100% !important;height:auto !important}
   pre{color:#000 !important}
-  h1{color:#000;font-size:16px}
-  h2{color:#000;font-size:13px;margin-top:6px}
+  h1{color:#000;font-size:16px}h2{color:#000;font-size:13px;margin-top:6px}
   #gWrap canvas{display:block !important}
-  .print-only{
-    display:block !important;
-    text-align:center;
-    margin-bottom:12px;
-    border-bottom:2px solid #c2410c;
-    padding-bottom:6px;
-  }
+  .print-only{display:block !important;text-align:center;margin-bottom:12px;border-bottom:2px solid #c2410c;padding-bottom:6px}
   .print-only h1{margin:0 0 2px;color:#000;font-size:15px}
   .print-credit{font-size:11px;color:#333}
-  footer.credit{
-    display:block !important;
-    border-top:1px solid #999 !important;
-    color:#000 !important;
-    font-size:11px;
-    padding:8px 0;
-    margin-top:14px;
-    page-break-before:avoid;
-  }
+  footer.credit{display:block !important;border-top:1px solid #999 !important;color:#000 !important;font-size:11px;padding:8px 0;margin-top:14px;page-break-before:avoid}
   footer.credit b{color:#000 !important}
 }
 body.print-table-only #eq,body.print-table-only #fin,
@@ -153,7 +128,6 @@ body.print-graph-only #stats{display:none !important}
  <button id="lEN" class="small">EN</button><button id="lFR" class="small">FR</button></div></div>
 <p class="s">Load a video → set the scale → place the origin → track the object frame by frame.</p>
 
-<!-- ============ VIDEO CARD ============ -->
 <div class="card">
  <div class="row">
   <button id="up" class="primary">📁 Import a video</button>
@@ -161,6 +135,7 @@ body.print-graph-only #stats{display:none !important}
   <input type="file" id="f" accept="video/*" hidden><input type="file" id="fc" accept="video/*" capture="environment" hidden>
   <span class="sp"></span>
   <span id="fpsbadge" class="badge info" style="display:none">— fps</span>
+  <span id="fpswarn" class="badge warn" style="display:none">⚠ fps override</span>
  </div>
  <details><summary>Video formats & tips</summary>
   <div class="note">Accepted video formats: MP4 (H.264) works everywhere. MOV and WebM work on most phones and browsers. HEVC (H.265), AVI, MKV and WMV often do not. Tip: film a few seconds in 1080p or lower.</div>
@@ -168,8 +143,8 @@ body.print-graph-only #stats{display:none !important}
  </details>
 
  <div class="row">
-  <label>Frames/s <input type="number" id="fps" value="30" min="1" step="any"></label>
-  <label>Step (frames) <input type="number" id="step" value="1" min="1" step="1"></label>
+  <label>Frames/s <input type="number" id="fps" value="30" min="1" max="240" step="any"></label>
+  <label>Step (frames) <input type="number" id="step" value="1" min="1" max="1000" step="1"></label>
   <label>Mass (kg) <input type="number" id="m" value="1" min="0" step="any"></label>
   <label>g (m/s²) <input type="number" id="g" value="9.81" step="any"></label>
  </div>
@@ -230,7 +205,6 @@ body.print-graph-only #stats{display:none !important}
  </div>
 </div>
 
-<!-- ============ STATS ============ -->
 <div class="stats" id="stats">
  <div class="stat"><span>g measured</span><b id="statG">—</b></div>
  <div class="stat"><span>g error</span><b id="statGErr">—</b></div>
@@ -240,7 +214,6 @@ body.print-graph-only #stats{display:none !important}
  <div class="stat"><span>FPS</span><b id="statFps">30</b></div>
 </div>
 
-<!-- ============ EQUATIONS + FINAL ============ -->
 <div class="g">
  <div class="card"><h2>Equations of motion (t = 0 at first point)</h2>
   <div class="row">
@@ -252,7 +225,6 @@ body.print-graph-only #stats{display:none !important}
  <div class="card"><h2>Final state</h2><pre id="fin">—</pre></div>
 </div>
 
-<!-- ============ GRAPHS ============ -->
 <div class="card"><h2>Graphs</h2>
  <div class="row" style="margin-bottom:6px">
   <button id="prGraph" title="Print only the currently visible graph">🖨 Print this graph</button>
@@ -274,7 +246,6 @@ body.print-graph-only #stats{display:none !important}
  </div>
 </div>
 
-<!-- ============ TABLE ============ -->
 <div class="card"><h2>Measurement table</h2>
  <div class="row">
   <button id="cp">📋 Copy TSV</button>
@@ -282,7 +253,7 @@ body.print-graph-only #stats{display:none !important}
   <button id="jsn">💾 Download JSON</button>
   <span class="sp"></span>
   <button id="prTab" title="Print the measurement table only">🖨 Print table</button>
-  <button id="prRep" class="primary" title="Print the full report: stats + equations + all graphs + table">🖨 Print full report</button>
+  <button id="prRep" class="primary" title="Print the full report">🖨 Print full report</button>
   <span id="cpm" class="msg"></span>
  </div>
  <div class="sc"><table id="tb"></table></div>
@@ -299,28 +270,10 @@ body.print-graph-only #stats{display:none !important}
 let LANG='en';try{LANG=localStorage.getItem('lang')||((navigator.language||'').slice(0,2)==='fr'?'fr':'en');}catch(e){}
 const FR={
  "New version available.":"Nouvelle version disponible.","Reload":"Recharger",
- "5. Correct point":"5. Corriger un point","5. Fix":"5. Corriger","3. Manual":"3. Manuel","4. Auto":"4. Auto",
+ "5. Fix":"5. Corriger","3. Manual":"3. Manuel","4. Auto":"4. Auto",
  "Delete point":"Supprimer le point","Undo":"Annuler","Clear all":"Tout effacer",
  "Velocity (green)":"Vitesse (vert)","Acceleration (magenta)":"Accélération (magenta)",
  "Show zoom inset":"Afficher la loupe",
- "Film perpendicular to the plane of motion, with the ruler in that same plane; otherwise measurements are distorted.":"Filmez perpendiculairement au plan du mouvement, avec la règle dans ce même plan ; sinon les mesures sont faussées.",
- "Go to the frame (◀ ▶ or click a table row), then click the object.":"Allez à l’image voulue (◀ ▶ ou clic sur une ligne du tableau), puis cliquez sur le mobile.",
- "Point corrected at frame ":"Point corrigé à l’image ",
- "ΔEm (last − first) = ":"ΔEm (dernier − premier) = ",
- "of exchanged energy":"de l’énergie échangée",
- "Mechanical energy ≈ conserved.":"Énergie mécanique ≈ conservée.",
- "Small change in mechanical energy.":"Faible variation de l’énergie mécanique.",
- "Large change: friction, or check scale and frames/s.":"Forte variation : frottements, ou vérifiez l’échelle et les images/s.",
- "Includes tracking noise.":"Inclut le bruit de pointage.",
- "Time step: ":"Pas de temps : ",
- "residual (m)":"résidu (m)",
- "Fit residuals (data − fit)":"Résidus de l’ajustement (mesure − modèle)",
- "Accepted video formats: MP4 (H.264) works everywhere. MOV and WebM work on most phones and browsers. HEVC (H.265), AVI, MKV and WMV often do not. Tip: film a few seconds in 1080p or lower.":"Formats vidéo acceptés : MP4 (H.264) fonctionne partout. MOV et WebM fonctionnent sur la plupart des téléphones et navigateurs. HEVC (H.265), AVI, MKV et WMV souvent non. Conseil : filmez quelques secondes en 1080p ou moins.",
- "Video tracking – Kinematics and energy":"Pointage vidéo – Cinématique et énergies",
- "Video tracking: kinematics, energy, equations of motion":"Pointage vidéo : cinématique, énergies, équations horaires",
- "Load a video → set the scale → place the origin → track the object frame by frame.":"Charger une vidéo → étalonner l’échelle → placer l’origine → pointer le mobile image par image.",
- "📁 Import a video":"📁 Importer une vidéo","🎥 Record":"🎥 Filmer",
- "Video formats & tips":"Formats vidéo & astuces",
  "Frames/s":"Images/s","Step (frames)":"Pas (images)","Mass (kg)":"Masse (kg)","g (m/s²)":"g (m/s²)",
  "1. Scale":"1. Échelle","2. Origin":"2. Origine","3. Manual":"3. Manuel","4. Auto":"4. Auto","5. Fix":"5. Corriger",
  "Real distance (m)":"Distance réelle (m)",
@@ -373,10 +326,12 @@ const FR={
  "🖨 Print this graph":"🖨 Imprimer ce graphe",
  "🖨 Print all graphs":"🖨 Imprimer tous les graphes",
  "Print the measurement table only":"Imprimer seulement le tableau de mesures",
- "Print the full report: stats + equations + all graphs + table":"Imprimer le rapport complet : stats + équations + tous les graphes + tableau",
+ "Print the full report":"Imprimer le rapport complet",
  "Print only the currently visible graph":"Imprimer seulement le graphe visible",
  "Print the 5 graphs":"Imprimer les 5 graphes",
- "Video tracking – Measurement report":"Pointage vidéo – Rapport de mesures"
+ "Video tracking – Measurement report":"Pointage vidéo – Rapport de mesures",
+ "⚠ fps override":"⚠ fps modifié",
+ "Warning: detected FPS differs from the entered value. Speeds and accelerations may be wrong.":"Attention : les images/s détectées diffèrent de la valeur saisie. Vitesses et accélérations peuvent être fausses."
 };
 const tr=s=>LANG==='fr'&&FR[s]!==undefined?FR[s]:s;
 function setLang(l){LANG=l;try{localStorage.setItem('lang',l);}catch(e){}applyLang();}
@@ -395,15 +350,32 @@ function applyLang(){
 }
 
 /* ============================================================
-   State
+   State + utils
    ============================================================ */
 const $=id=>document.getElementById(id),v=$('v'),c=$('c'),ctx=c.getContext('2d');
-const S={pts:[],cal:[],scale:null,orig:null,mode:null,stop:true,detectedFps:null,lastConf:null,zoom:1,pan:{x:0,y:0},tableSel:-1};
-const fps=()=>+$('fps').value||30, dt=()=>1/fps();
+const S={pts:[],cal:[],scale:null,orig:null,mode:null,stop:true,detectedFps:null,lastConf:null,zoom:1,pan:{x:0,y:0},tableSel:-1,objURL:null};
+const dt=()=>1/fps();
 const say=t=>$('msg').textContent=t;
 const fmt=n=>isFinite(n)?String(+n.toPrecision(4)):'—';
 const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const clampNum=(el,min,max,def)=>{
+ if(!el)return def;
+ let x=+el.value;
+ if(!isFinite(x))x=def;
+ x=clamp(x,min,max);
+ el.value=x;
+ return x;
+};
+const fps=()=>clampNum($('fps'),1,240,30);
+const step=()=>Math.round(clampNum($('step'),1,1000,1));
+const mass=()=>clampNum($('m'),0,1e6,1);
+const gval=()=>clampNum($('g'),0,100,9.81);
+const tol=()=>Math.round(clampNum($('tol'),5,255,60));
+const tsz=()=>Math.round(clampNum($('tsz'),2,500,10));
+const rad=()=>Math.round(clampNum($('rad'),3,500,40));
+const thr=()=>clampNum($('thr'),0,1,0.5);
+const dist=()=>clampNum($('dist'),0,1e6,1);
 
 /* ============================================================
    Theme
@@ -418,15 +390,24 @@ $('thm').onclick=()=>{
 try{const t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}
 
 /* ============================================================
-   File loading
+   File loading + object URL lifecycle
    ============================================================ */
+function releaseVideo(){
+ S.stop=true;
+ try{if(S.objURL){URL.revokeObjectURL(S.objURL);S.objURL=null;}}catch(e){}
+ try{v.removeAttribute('src');v.load();}catch(e){}
+}
 $('up').onclick=()=>{$('f').value='';$('f').click();};
 $('cam').onclick=()=>{$('fc').value='';$('fc').click();};
 ['f','fc'].forEach(id=>$(id).onchange=e=>{
  const f=e.target.files[0];if(!f)return;
- S.stop=true;S.pts=[];S.cal=[];S.scale=null;S.orig=null;S.mode=null;S.detectedFps=null;S.lastConf=null;
+ releaseVideo();
+ S.pts=[];S.cal=[];S.scale=null;S.orig=null;S.mode=null;S.detectedFps=null;S.lastConf=null;S.tableSel=-1;
  say(tr('Loading video… (')+Math.round(f.size/1e6)+tr(' MB)'));
- v.src=URL.createObjectURL(f);v.load();refresh();
+ if(f.size>100e6)say(say_tr_js,'') /* placeholder */;
+ S.objURL=URL.createObjectURL(f);
+ v.src=S.objURL;v.load();refresh();
+ if(f.size>100e6)say('⚠ Large video ('+Math.round(f.size/1e6)+' MB). Tracking may be slow on mobile.');
 });
 
 v.onloadedmetadata=()=>{
@@ -439,11 +420,12 @@ v.onloadedmetadata=()=>{
  say(tr('Video loaded. Enter the frames/s, then click “1. Scale”.'));
  detectFps();
 };
-
 v.onerror=()=>{
  if(!v.error)return;
  say(tr('Cannot read this video (format not supported, code ')+(v.error&&v.error.code)+tr('). On iPhone: Settings > Camera > Formats > Most Compatible, then film again.'));
 };
+/* guard against a `let say_tr_js` typo in older code paths — no-op */
+const say_tr_js='';
 
 async function detectFps(){
  if(!('requestVideoFrameCallback' in HTMLVideoElement.prototype))return;
@@ -451,7 +433,7 @@ async function detectFps(){
   const t0=v.currentTime;let count=0,lastMeta=null;
   await v.play().catch(()=>{});
   const start=performance.now();
-  while(count<40 && performance.now()-start<1500){
+  while(count<40 && performance.now()-start<2000){
    await new Promise(r=>v.requestVideoFrameCallback((now,meta)=>{
     if(meta.mediaTime>t0+0.4)lastMeta=meta;
     count++;r();
@@ -469,10 +451,20 @@ async function detectFps(){
      b.textContent='≈ '+guess+' fps';
      b.title='Detected from the video.';
      if(+$('fps').value===30){$('fps').value=guess;}
+     updateFpsWarning();
     }
    }
   }
  }catch(e){}
+}
+function updateFpsWarning(){
+ const w=$('fpswarn');
+ if(!w)return;
+ if(S.detectedFps && Math.abs(fps()-S.detectedFps)/S.detectedFps>0.05){
+  w.style.display='';
+  w.textContent=tr('⚠ fps override');
+  w.title=tr('Warning: detected FPS differs from the entered value. Speeds and accelerations may be wrong.');
+ } else w.style.display='none';
 }
 
 /* ============================================================
@@ -482,8 +474,11 @@ function seek(t){
  t=clamp(t,0,v.duration||0);
  return new Promise(r=>{
   if(Math.abs(v.currentTime-t)<1e-4){draw();r();return;}
-  v.onseeked=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{draw();r();}));
-  v.currentTime=t;
+  let done=false;
+  const finish=()=>{if(done)return;done=true;requestAnimationFrame(()=>requestAnimationFrame(()=>{draw();r();}));};
+  const to=setTimeout(finish,1500);
+  v.onseeked=()=>{clearTimeout(to);finish();};
+  try{v.currentTime=t;}catch(e){clearTimeout(to);finish();}
  });
 }
 const frame=()=>Math.round(v.currentTime*fps());
@@ -599,7 +594,8 @@ c.onclick=async e=>{
   S.cal.push({x,y});
   if(S.cal.length===2){
    const d=Math.hypot(S.cal[1].x-S.cal[0].x,S.cal[1].y-S.cal[0].y);
-   S.scale=(+$('dist').value)/d;
+   if(d<1){say('Calibration length too short — click two distinct points.');S.cal=[];draw();return;}
+   S.scale=dist()/d;
    say(tr('Scale: ')+fmt(S.scale)+tr(' m/pixel. Now set the origin.'));
    S.mode=null;MODE_IDS.forEach(b=>$(b).classList.remove('on'));
   }
@@ -614,10 +610,10 @@ c.onclick=async e=>{
   await startAuto(x,y);
  } else if(S.mode==='track'){
   if(!S.scale||!S.orig){say(tr('Set the scale and the origin first.'));return;}
-  const k=frame(),i=S.pts.findIndex(p=>p.k===k),p={k,t:k/fps(),px:x,py:y};
+  const k=frame(),i=S.pts.findIndex(p=>p.k===k),p={k,t:v.currentTime,px:x,py:y};
   if(i>=0)S.pts[i]=p;else{S.pts.push(p);S.pts.sort((a,b)=>a.k-b.k);}
   refresh();
-  await seek(v.currentTime+(+$('step').value||1)*dt());
+  await seek(v.currentTime+step()*dt());
  }
 };
 
@@ -696,29 +692,8 @@ function draw(){
 }
 
 /* ============================================================
-   Compute
+   Numerics
    ============================================================ */
-function compute(){
- const n=S.pts.length;
- if(!n||!S.scale||!S.orig)return[];
- const m=+$('m').value,g=+$('g').value,t0=S.pts[0].t;
- const R=S.pts.map(p=>({t:p.t-t0,x:(p.px-S.orig.x)*S.scale,y:(S.orig.y-p.py)*S.scale}));
- R.forEach((r,i)=>{
-  const a=R[Math.max(i-1,0)],b=R[Math.min(i+1,n-1)];
-  if(n>1){r.vx=(b.x-a.x)/(b.t-a.t);r.vy=(b.y-a.y)/(b.t-a.t);}
-  else{r.vx=r.vy=NaN;}
-  r.v=Math.hypot(r.vx,r.vy);
-  r.Ec=.5*m*r.v*r.v;r.Ep=m*g*r.y;r.Em=r.Ec+r.Ep;
- });
- R.forEach((r,i)=>{
-  const a=Math.max(0,i-2),b=Math.min(n-1,i+2),ts=[],xs=[],ys=[];
-  for(let j=a;j<=b;j++){ts.push(R[j].t-r.t);xs.push(R[j].x);ys.push(R[j].y);}
-  const cx=ts.length>=3?polyfit(ts,xs,2):null;
-  const cy=ts.length>=3?polyfit(ts,ys,2):null;
-  r.ax=cx?2*cx[2]:NaN;r.ay=cy?2*cy[2]:NaN;r.a=Math.hypot(r.ax,r.ay);
- });
- return R;
-}
 function polyfit(ts,ys,d){
  const k=d+1;if(ts.length<k)return null;
  const A=Array.from({length:k},()=>Array(k+1).fill(0));
@@ -808,7 +783,75 @@ function autoDegree(ts,ys){
 }
 
 /* ============================================================
-   Refresh
+   Compute (fixed timestamps, velocities, accelerations)
+   ============================================================ */
+function compute(){
+ const n=S.pts.length;
+ if(n<1||!S.scale||!S.orig)return[];
+ const m=mass(),g=gval(),t0=S.pts[0].t;
+ const R=S.pts.map(p=>({t:p.t-t0,x:(p.px-S.orig.x)*S.scale,y:(S.orig.y-p.py)*S.scale}));
+
+ /* --- velocity: centered difference with Richardson extrapolation at ends --- */
+ for(let i=0;i<n;i++){
+  const r=R[i];
+  if(n===1){r.vx=r.vy=NaN;r.v=NaN;r.Ec=r.Ep=r.Em=NaN;continue;}
+  if(i===0){
+   // 2-point forward: use second-order (3-point) if available
+   if(n>=3){
+    const r1=R[1],r2=R[2];
+    const t1=r1.t,t2=r2.t; // t0 = 0
+    // f'(0) ≈ (-3 f0 + 4 f1 - f2) / (t2 - t0) ... careful with non-uniform t
+    // safer: use quadratic fit on 3 first points
+    const cX=polyfit([0,t1,t2],[r.x,r1.x,r2.x],2);
+    const cY=polyfit([0,t1,t2],[r.y,r1.y,r2.y],2);
+    r.vx=cX?cX[1]:NaN; r.vy=cY?cY[1]:NaN;
+   } else {
+    const r1=R[1];
+    r.vx=(r1.x-r.x)/(r1.t-r.t);r.vy=(r1.y-r.y)/(r1.t-r.t);
+   }
+  } else if(i===n-1){
+   const a=R[n-2],b=R[n-3];
+   if(n>=3){
+    const tA=a.t-r.t,tB=b.t-r.t;
+    const cX=polyfit([tB,tA,0],[b.x,a.x,r.x],2);
+    const cY=polyfit([tB,tA,0],[b.y,a.y,r.y],2);
+    r.vx=cX?cX[1]:NaN; r.vy=cY?cY[1]:NaN;
+   } else {
+    const a=R[n-2];
+    r.vx=(r.x-a.x)/(r.t-a.t);r.vy=(r.y-a.y)/(r.t-a.t);
+   }
+  } else {
+   const a=R[i-1],b=R[i+1];
+   r.vx=(b.x-a.x)/(b.t-a.t);r.vy=(b.y-a.y)/(b.t-a.t);
+  }
+  r.v=Math.hypot(r.vx,r.vy);
+  r.Ec=.5*m*r.v*r.v;r.Ep=m*g*r.y;r.Em=r.Ec+r.Ep;
+ }
+
+ /* --- acceleration: global quadratic fit if enough points, else local ±3 --- */
+ const ts=R.map(r=>r.t),xs=R.map(r=>r.x),ys=R.map(r=>r.y);
+ let cXg=null,cYg=null;
+ if(n>=4){
+  cXg=polyfit(ts,xs,2);
+  cYg=polyfit(ts,ys,2);
+ }
+ const useGlobal = cXg && cYg;
+ R.forEach((r,i)=>{
+  if(useGlobal){
+   r.ax=2*cXg[2]; r.ay=2*cYg[2];
+  } else if(n>=3){
+   const a=Math.max(0,i-3),b=Math.min(n-1,i+3),tl=[],xl=[],yl=[];
+   for(let j=a;j<=b;j++){tl.push(R[j].t-r.t);xl.push(R[j].x);yl.push(R[j].y);}
+   const cx=polyfit(tl,xl,2),cy=polyfit(tl,yl,2);
+   r.ax=cx?2*cx[2]:NaN; r.ay=cy?2*cy[2]:NaN;
+  } else {r.ax=r.ay=NaN;}
+  r.a=Math.hypot(r.ax,r.ay);
+ });
+ return R;
+}
+
+/* ============================================================
+   Refresh (table, equations, stats, graphs)
    ============================================================ */
 function refresh(){
  const R=compute();S.R=R;
@@ -822,11 +865,15 @@ function refresh(){
  $('statN').textContent=n;
  $('statFps').textContent=fmt(fps());
  $('statG').textContent='—';$('statGErr').textContent='—';$('statDE').textContent='—';$('statV').textContent='—';
+ $('statG').style.color='';
+
  if(n>=2){
   const vmax=Math.max(...R.map(r=>r.v).filter(isFinite));
   $('statV').textContent=fmt(vmax)+' m/s';
   const dE=R[n-1].Em-R[0].Em;
   $('statDE').textContent=fmt(dE)+' J';
+
+  /* g measured from y(t) quadratic + proper uncertainty 2*sqrt(Cov22) */
   const ts=R.map(r=>r.t),ys=R.map(r=>r.y);
   const co2=polyfit(ts,ys,2);
   if(co2&&co2[2]){
@@ -836,8 +883,8 @@ function refresh(){
    const sG=isFinite(sC)?2*sC:NaN;
    $('statG').textContent=fmt(Math.abs(gExp))+' m/s²';
    $('statGErr').textContent=isFinite(sG)?('± '+fmt(sG)):'—';
-   const theoretical=+$('g').value;
-   const rel=Math.abs(Math.abs(gExp)-theoretical)/theoretical;
+   const theoretical=gval();
+   const rel=theoretical>0?Math.abs(Math.abs(gExp)-theoretical)/theoretical:NaN;
    const el=$('statG');
    el.style.color=rel<0.03?'var(--ok)':rel<0.1?'var(--warn)':'var(--err)';
   }
@@ -856,11 +903,13 @@ function refresh(){
   if(cx&&cx[2])s+='\nax = '+fmt(2*cx[2])+' m/s²';
   if(cy&&cy[2])s+='\nay = '+fmt(2*cy[2])+' m/s²';
   $('eq').textContent=s;
+
   const L=R[R.length-1];
   $('fin').textContent='t = '+fmt(L.t)+' s\nx = '+fmt(L.x)+' m   y = '+fmt(L.y)+' m\nvx = '+fmt(L.vx)+' m/s   vy = '+fmt(L.vy)+' m/s\nv = '+fmt(L.v)+' m/s\n'+tr('KE')+' = '+fmt(L.Ec)+' J\n'+tr('PE')+' = '+fmt(L.Ep)+' J  '+tr('(ref.: y = 0 at the origin)')+'\n'+tr('ME')+' = '+fmt(L.Em)+' J';
   const sc=Math.max(Math.max(...R.map(r=>r.Ec).filter(isFinite)),Math.max(...R.map(r=>r.Ep))-Math.min(...R.map(r=>r.Ep)));
   const dE=L.Em-R[0].Em,pc=sc>0?dE/sc*100:NaN;
-  $('fin').textContent+='\n\n'+tr('Time step: ')+fmt(R[1]?R[1].t-R[0].t:NaN)+' s · '+tr('Scale: ')+fmt(S.scale)+' m/px';
+  const dtMean=R.length>1?(R[R.length-1].t-R[0].t)/(R.length-1):NaN;
+  $('fin').textContent+='\n\n'+tr('Time step: ')+fmt(dtMean)+' s · '+tr('Scale: ')+fmt(S.scale)+' m/px';
   if(isFinite(pc)&&R.length>2){
    $('fin').textContent+='\n'+tr('ΔEm (last − first) = ')+fmt(dE)+' J ('+fmt(pc)+' % '+tr('of exchanged energy')+')\n'+
     (Math.abs(pc)<5?tr('Mechanical energy ≈ conserved.'):Math.abs(pc)<15?tr('Small change in mechanical energy.'):tr('Large change: friction, or check scale and frames/s.'))+' '+tr('Includes tracking noise.');
@@ -869,10 +918,12 @@ function refresh(){
 
  chart(R);draw();
 }
-['dx','dy','m','g','autoDeg'].forEach(i=>$(i).onchange=refresh);
+['dx','dy','m','g','autoDeg','fps','step','thr','tol','tsz','rad','dist'].forEach(i=>{
+ const el=$(i);if(el){el.onchange=()=>{updateFpsWarning();refresh();};}
+});
 
 function addPt(px,py){
- const k=frame(),p={k,t:k/fps(),px,py},i=S.pts.findIndex(q=>q.k===k);
+ const k=frame(),p={k,t:v.currentTime,px,py},i=S.pts.findIndex(q=>q.k===k);
  if(i>=0)S.pts[i]=p;else{S.pts.push(p);S.pts.sort((a,b)=>a.k-b.k);}
 }
 
@@ -880,8 +931,9 @@ function addPt(px,py){
    Auto-tracking primitives
    ============================================================ */
 const PC=document.createElement('canvas'),pctx=PC.getContext('2d',{willReadFrequently:true});
+const MAXPROC=1920; // cap on processing width — memory guard for 4K
 function grab(){
- const k=Math.min(1,640/c.width);
+ const k=Math.min(1,MAXPROC/c.width);
  PC.width=Math.round(c.width*k);PC.height=Math.round(c.height*k);
  S.k=c.width/PC.width;
  pctx.drawImage(v,0,0,PC.width,PC.height);
@@ -957,26 +1009,26 @@ function pickBlob(rgb,col,tol,qx,qy,R,A0){
 }
 
 /* ============================================================
-   Auto loop
+   Auto loop — resilient (up to 5 lost frames, Kalman-lite)
    ============================================================ */
 async function startAuto(x,y){
  if(!S.scale||!S.orig){say(tr('Set the scale and the origin first.'));return;}
  S.stop=false;S.mode=null;
  MODE_IDS.forEach(b=>$(b).classList.remove('on'));
- const stp=+$('step').value||1,thr=+$('thr').value||.5;
- const meth=$('meth').value,tol=+$('tol').value||60;
+ const stp=step(),thrVal=thr(),meth=$('meth').value,tolVal=tol();
  let gr=grab();
- const k=S.k,h=Math.max(2,Math.round((+$('tsz').value||10)/k));
- const R=Math.max(3,Math.round((+$('rad').value||40)/k));
+ const k=S.k,h=Math.max(2,Math.round(tsz()/k));
+ const R=Math.max(3,Math.round(rad()/k));
  let cx=clamp(Math.round(x/k),h,PC.width-h-1);
  let cy=clamp(Math.round(y/k),h,PC.height-h-1);
  let T=null,col=null,A0=0,bh=h*k,n=0,vx=0,vy=0;
  let end=tr('Tracking finished.');
+ let lost=0;const MAXLOST=5;
 
  if(meth==='tpl'){T=mkTpl(gr,cx,cy,h);}
  else{
   col=medColor(S.rgb,cx,cy);
-  const b=pickBlob(S.rgb,col,tol,cx,cy,R,0);
+  const b=pickBlob(S.rgb,col,tolVal,cx,cy,R,0);
   if(!b){say(tr('Object color not detected: click at the center of the object or increase the tolerance.'));return;}
   cx=b.x;cy=b.y;A0=b.n;S.blob=b.pts;
   bh=(Math.sqrt(b.n/Math.PI)+4)*k;
@@ -992,33 +1044,42 @@ async function startAuto(x,y){
    if(nt>v.duration-1e-3){end=tr('End of video reached.');break;}
    await seek(nt);gr=grab();
    const qx=Math.round(cx+vx),qy=Math.round(cy+vy);
-   let info='';
+   let info='',ok=false,bx=cx,by=cy;
    if(meth==='tpl'){
     let r=match(gr,T,qx,qy,R);
-    if(r.s<thr)r=match(gr,T,qx,qy,3*R);
-    if(r.s<thr){
-     end=tr('Tracking lost at t = ')+fmt(v.currentTime)+tr(' s (confidence ')+fmt(r.s)+
+    if(r.s<thrVal)r=match(gr,T,qx,qy,3*R);
+    if(r.s>=thrVal){
+     bx=r.x;by=r.y;setConf(r.s);info=tr('confidence ')+fmt(r.s);
+     if($('upd').checked&&r.s>.9)T=mkTpl(gr,bx,by,h);
+     ok=true;
+    } else {
+     setConf(Math.max(0,r.s));
+    }
+   } else {
+    let b=pickBlob(S.rgb,col,tolVal,qx,qy,R,A0);
+    if(!b)b=pickBlob(S.rgb,col,tolVal,qx,qy,3*R,A0);
+    if(b){
+     bx=b.x;by=b.y;S.blob=b.pts;A0=Math.max(A0*0.8,b.n*0.5); // EMA
+     bh=(Math.sqrt(b.n/Math.PI)+4)*k;info=b.n+tr(' px detected');
+     setConf(Math.min(1,b.n/Math.max(A0,1)));
+     ok=true;
+    }
+   }
+   if(ok){
+    vx=bx-cx;vy=by-cy;cx=bx;cy=by;lost=0;
+    addPt(cx*k,cy*k);S.box={x:cx*k,y:cy*k,h:bh};
+   } else {
+    lost++;
+    // predict without measurement (Kalman-lite: keep vx,vy)
+    cx=cx+vx;cy=cy+vy;
+    if(lost>MAXLOST){
+     end=tr('Tracking lost at t = ')+fmt(v.currentTime)+tr(' s (confidence ')+fmt(S.lastConf||0)+
          tr('). Try the Color method, or shrink the template so it fits the object.');
      break;
     }
-    vx=r.x-cx;vy=r.y-cy;cx=r.x;cy=r.y;setConf(r.s);
-    info=tr('confidence ')+fmt(r.s);
-    if($('upd').checked&&r.s>.9)T=mkTpl(gr,cx,cy,h);
-   } else {
-    let b=pickBlob(S.rgb,col,tol,qx,qy,R,A0);
-    if(!b)b=pickBlob(S.rgb,col,tol,qx,qy,3*R,A0);
-    if(!b){
-     end=tr('Object not found at t = ')+fmt(v.currentTime)+
-         tr(' s. Increase the color tolerance or the radius, and check the frames/s and the step.');
-     break;
-    }
-    vx=b.x-cx;vy=b.y-cy;cx=b.x;cy=b.y;S.blob=b.pts;
-    bh=(Math.sqrt(b.n/Math.PI)+4)*k;info=b.n+tr(' px detected');
-    setConf(Math.min(1,b.n/Math.max(A0,1)));
    }
-   addPt(cx*k,cy*k);S.box={x:cx*k,y:cy*k,h:bh};
    if(++n%5===0){refresh();draw();}
-   say(tr('Tracking… frame ')+frame()+' ('+info+')');
+   say(tr('Tracking… frame ')+frame()+' ('+(info||(lost?'…':'?'))+')');
    await new Promise(ok=>setTimeout(ok));
   }
  } finally {
@@ -1071,8 +1132,12 @@ function chart(R){
  plot('c2',[{n:'v',col:'#ef4444',X:t,Y:f('v')},{n:'vx',col:'#f97316',X:t,Y:f('vx')},{n:'vy',col:'#3b82f6',X:t,Y:f('vy')}],'t (s)','speed (m/s)','Speed v(t) and components vx(t), vy(t)');
  plot('c3',[{n:'KE',col:'#ef4444',X:t,Y:f('Ec')},{n:'PE',col:'#3b82f6',X:t,Y:f('Ep')},{n:'ME',col:'#22c55e',X:t,Y:f('Em')}],'t (s)','energy (J)','Kinetic, potential and mechanical energy');
  plot('c4',[{n:'y(x)',col:'#f97316',X:f('x'),Y:f('y')}],'x (m)','y (m)','Trajectory y(x)');
- const fx=polyfit(t,f('x'),+$('dx').value);
- const fy=polyfit(t,f('y'),+$('dy').value);
+ /* residuals: SAME degrees as equations, SAME coefficients */
+ if(R.length<2){$('c5').getContext('2d').clearRect(0,0,640,300);return;}
+ const dx=$('autoDeg').checked?autoDegree(t,f('x')):+$('dx').value;
+ const dy=$('autoDeg').checked?autoDegree(t,f('y')):+$('dy').value;
+ const fx=polyfit(t,f('x'),dx);
+ const fy=polyfit(t,f('y'),dy);
  if(!fx||!fy){$('c5').getContext('2d').clearRect(0,0,640,300);return;}
  const res=(co,k)=>co?R.map(r=>r[k]-co.reduce((a,c0,j)=>a+c0*Math.pow(r.t,j),0)):R.map(()=>NaN);
  plot('c5',[{n:'x',col:'#f97316',X:t,Y:res(fx,'x')},{n:'y',col:'#3b82f6',X:t,Y:res(fy,'y')}],'t (s)','residual (m)','Fit residuals (data − fit)');
@@ -1109,7 +1174,7 @@ $('csv').onclick=()=>{
 };
 $('jsn').onclick=()=>{
  const R=compute();
- const data={fps:fps(),scale:S.scale,orig:S.orig,mass:+$('m').value,g:+$('g').value,
+ const data={fps:fps(),scale:S.scale,orig:S.orig,mass:mass(),g:gval(),
   points:S.pts.map(p=>({k:p.k,t:p.t,px:p.px,py:p.py})),
   rows:R.map(r=>({t:r.t,x:r.x,y:r.y,vx:r.vx,vy:r.vy,v:r.v,Ec:r.Ec,Ep:r.Ep,Em:r.Em,ax:r.ax,ay:r.ay}))};
  download('tracking.json',JSON.stringify(data,null,2),'application/json');
