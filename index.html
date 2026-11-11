@@ -59,7 +59,7 @@ label.inline{display:inline-flex}
 .stat b{font-size:16px;font-variant-numeric:tabular-nums}
 .stat span{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
 .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px}
-.tabs{display:flex;gap:4px;border-bottom:1px solid var(--bd);margin-bottom:10px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--bd);margin-bottom:10px;flex-wrap:wrap}
 .tabs button{background:none;border:none;border-bottom:2px solid transparent;border-radius:0;padding:6px 12px;color:var(--mut)}
 .tabs button.on{color:var(--ac);border-bottom-color:var(--ac);background:none;font-weight:600}
 details summary{cursor:pointer;color:var(--mut);font-size:13px;padding:4px 0;list-style:none}
@@ -76,8 +76,6 @@ footer.credit{text-align:center;color:var(--mut);font-size:13px;padding:18px 8px
 footer.credit b{color:var(--ac);font-weight:600}
 .print-only{display:none}
 .warn{color:var(--warn);font-weight:600}
-
-/* Graph card wrapper: title row + canvas + toolbar */
 .chWrap{position:relative;background:var(--card2);border:1px solid var(--bd);border-radius:10px;margin-bottom:10px;overflow:hidden}
 .chWrap .chHead{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--card);border-bottom:1px solid var(--bd)}
 .chWrap .chHead b{font-size:13px}
@@ -87,8 +85,6 @@ footer.credit b{color:var(--ac);font-weight:600}
 .chWrap .canvasBox{position:relative;padding:6px}
 .chWrap canvas.ch{width:100%;height:auto;display:block}
 .chWrap .tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--bg);padding:4px 8px;border-radius:6px;font:12px/1.3 ui-monospace,Menlo,monospace;white-space:nowrap;display:none;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-.chWrap .xhair{position:absolute;top:0;bottom:0;width:1px;background:var(--ac);opacity:.4;pointer-events:none;display:none}
-
 @media print{
   @page{size:A4 portrait;margin:12mm}
   body{background:#fff !important;color:#000 !important;font-size:12px}
@@ -112,7 +108,6 @@ footer.credit b{color:var(--ac);font-weight:600}
   .chWrap .canvasBox{padding:4px}
   pre{color:#000 !important}
   h1{color:#000;font-size:16px}h2{color:#000;font-size:13px;margin-top:6px}
-  #gWrap canvas{display:block !important}
   .print-only{display:block !important;text-align:center;margin-bottom:12px;border-bottom:2px solid #c2410c;padding-bottom:6px}
   .print-only h1{margin:0 0 2px;color:#000;font-size:15px}
   .print-credit{font-size:11px;color:#333}
@@ -259,35 +254,35 @@ body.print-graph-only #stats{display:none !important}
    <div class="chHead"><b>x(t) and y(t)</b><small id="sub-c1"></small>
     <div class="acts"><button data-png="c1" title="Save PNG">💾 PNG</button></div></div>
    <div class="canvasBox"><canvas id="c1" class="ch" width="640" height="300"></canvas>
-    <div class="xhair" id="xh-c1"></div><div class="tip" id="tip-c1"></div></div>
+    <div class="tip" id="tip-c1"></div></div>
   </div>
 
   <div class="chWrap" id="wrap-c2" style="display:none">
    <div class="chHead"><b>v(t), vx(t), vy(t)</b><small id="sub-c2"></small>
     <div class="acts"><button data-png="c2" title="Save PNG">💾 PNG</button></div></div>
    <div class="canvasBox"><canvas id="c2" class="ch" width="640" height="300"></canvas>
-    <div class="xhair" id="xh-c2"></div><div class="tip" id="tip-c2"></div></div>
+    <div class="tip" id="tip-c2"></div></div>
   </div>
 
   <div class="chWrap" id="wrap-c3" style="display:none">
    <div class="chHead"><b>Energies</b><small id="sub-c3"></small>
     <div class="acts"><button data-png="c3" title="Save PNG">💾 PNG</button></div></div>
    <div class="canvasBox"><canvas id="c3" class="ch" width="640" height="300"></canvas>
-    <div class="xhair" id="xh-c3"></div><div class="tip" id="tip-c3"></div></div>
+    <div class="tip" id="tip-c3"></div></div>
   </div>
 
   <div class="chWrap" id="wrap-c4" style="display:none">
    <div class="chHead"><b>Trajectory y(x)</b><small id="sub-c4"></small>
     <div class="acts"><button data-png="c4" title="Save PNG">💾 PNG</button></div></div>
    <div class="canvasBox"><canvas id="c4" class="ch" width="640" height="300"></canvas>
-    <div class="xhair" id="xh-c4"></div><div class="tip" id="tip-c4"></div></div>
+    <div class="tip" id="tip-c4"></div></div>
   </div>
 
   <div class="chWrap" id="wrap-c5" style="display:none">
    <div class="chHead"><b>Residuals (data − fit)</b><small id="sub-c5"></small>
     <div class="acts"><button data-png="c5" title="Save PNG">💾 PNG</button></div></div>
    <div class="canvasBox"><canvas id="c5" class="ch" width="640" height="300"></canvas>
-    <div class="xhair" id="xh-c5"></div><div class="tip" id="tip-c5"></div></div>
+    <div class="tip" id="tip-c5"></div></div>
   </div>
 
  </div>
@@ -404,7 +399,7 @@ function applyLang(){
    State + utils
    ============================================================ */
 const $=id=>document.getElementById(id),v=$('v'),c=$('c'),ctx=c.getContext('2d');
-const S={pts:[],cal:[],scale:null,orig:null,mode:null,stop:true,detectedFps:null,lastConf:null,zoom:1,pan:{x:0,y:0},tableSel:-1,objURL:null,charts:{}};
+const S={pts:[],cal:[],scale:null,orig:null,mode:null,stop:true,detectedFps:null,lastConf:null,zoom:1,pan:{x:0,y:0},tableSel:-1,objURL:null,charts:{},activeChart:'c1',_inChart:false};
 const fps=()=>clampNum($('fps'),1,240,30);
 const dt=()=>1/fps();
 const say=t=>$('msg').textContent=t;
@@ -1119,175 +1114,162 @@ async function startAuto(x,y){
 }
 
 /* ============================================================
-   CHART ENGINE — improved
+   CHART ENGINE — fixed for hidden canvases
    ============================================================ */
 const CHART_IDS=['c1','c2','c3','c4','c5'];
 const CHART_COLORS={
  x:'#f97316', y:'#3b82f6', v:'#ef4444', vx:'#f97316', vy:'#3b82f6',
  KE:'#ef4444', PE:'#3b82f6', ME:'#22c55e',
- fit:'#a3a3a3', zero:'#00000055', band:'#22c55e22'
+ fit:'#a3a3a3'
 };
-/* Each chart keeps its own zoom window (in data units) + mouse state */
 function chartState(id){
  if(!S.charts[id]) S.charts[id]={zoom:{x0:null,x1:null},mouse:null};
  return S.charts[id];
 }
-/* Transform a data point to canvas pixel coords */
+/* Critical fix: never resize a hidden canvas (clientWidth = 0).
+   If dimensions didn't change, don't reassign (which clears the canvas). */
 function makeCtx(cv){
  const dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
- const cssW=Math.max(320,cv.clientWidth||640);
+ let cssW=cv.clientWidth;
+ if(!cssW||cssW<20){
+  // wrapper is hidden — keep current dimensions
+  const curW=cv.width||640;
+  const curH=cv.height||300;
+  const g=cv.getContext('2d');
+  g.setTransform(dpr,0,0,dpr,0,0);
+  return {g,W:curW/dpr,H:curH/dpr,hidden:true};
+ }
  const cssH=Math.round(cssW*300/640);
- cv.width=Math.round(cssW*dpr);
- cv.height=Math.round(cssH*dpr);
- cv.style.height=cssH+'px';
- const x=cv.getContext('2d');
- x.setTransform(dpr,0,0,dpr,0,0);
- return {g:x,W:cssW,H:cssH};
+ const wantW=Math.round(cssW*dpr);
+ const wantH=Math.round(cssH*dpr);
+ if(cv.width!==wantW||cv.height!==wantH){
+  cv.width=wantW;
+  cv.height=wantH;
+  cv.style.height=cssH+'px';
+ }
+ const g=cv.getContext('2d');
+ g.setTransform(dpr,0,0,dpr,0,0);
+ return {g,W:cssW,H:cssH,hidden:false};
 }
 function niceStep(range,targetTicks){
- const raw=range/targetTicks;
+ const raw=range/Math.max(1,targetTicks);
  const p=Math.pow(10,Math.floor(Math.log10(raw)));
  const m=raw/p;
  let s;
  if(m<1.5)s=1;else if(m<3)s=2;else if(m<7)s=5;else s=10;
  return s*p;
 }
-/* Main plotter */
+function buildFitCurve(co,x0,x1,n=120){
+ if(!co)return null;
+ const X=[],Y=[];
+ for(let i=0;i<n;i++){
+  const ti=x0+(x1-x0)*i/(n-1);
+  X.push(ti);
+  Y.push(co.reduce((a,c,j)=>a+c*Math.pow(ti,j),0));
+ }
+ return {X,Y};
+}
 function plotChart(id,opts){
- const cv=$(id);
- const {g,W,H}=makeCtx(cv);
+ const cv=$(id);if(!cv)return;
+ const {g,W,H,hidden}=makeCtx(cv);
  g.clearRect(0,0,W,H);
- const fg=css('--fg')||'#888',mut=css('--mut')||'#888',bd=css('--bd')||'#ddd',ac=css('--ac')||'#c2410c';
+ const fg=css('--fg')||'#888',mut=css('--mut')||'#888',bd=css('--bd')||'#ddd';
  const grid=css('--grid')||'rgba(0,0,0,.08)';
  const zero=css('--zero')||'rgba(0,0,0,.25)';
- const series=opts.series.filter(s=>s.X.length&&s.Y.length);
+ const series=(opts.series||[]).filter(s=>s.X&&s.X.length&&s.Y&&s.Y.length);
  const allY=series.flatMap(s=>s.Y).filter(isFinite);
  const allX=series.flatMap(s=>s.X).filter(isFinite);
- const title=opts.title,sub=opts.sub;
-
- // Compute range
  if(!allY.length||!allX.length){
-  g.fillStyle=fg;g.font='bold 13px sans-serif';g.fillText(tr(title),12,22);
+  g.fillStyle=fg;g.font='bold 13px sans-serif';g.fillText(tr(opts.title||''),12,22);
   g.fillStyle=mut;g.font='13px sans-serif';g.fillText(tr('No data yet.'),20,52);
+  const st0=chartState(id);st0.transform=null;st0.series=[];
   return;
  }
  let x0=Math.min(...allX),x1=Math.max(...allX);
  let y0=Math.min(...allY),y1=Math.max(...allY);
- // apply per-chart zoom on x
  const st=chartState(id);
  if(st.zoom.x0!==null&&st.zoom.x1!==null&&st.zoom.x1>st.zoom.x0){
   x0=Math.max(x0,st.zoom.x0);x1=Math.min(x1,st.zoom.x1);
   if(x1<=x0){x0=Math.min(...allX);x1=Math.max(...allX);st.zoom={x0:null,x1:null};}
-  // recompute y range from visible
   const vis=series.flatMap(s=>s.X.map((xv,i)=>xv>=x0&&xv<=x1?s.Y[i]:NaN)).filter(isFinite);
   if(vis.length){y0=Math.min(...vis);y1=Math.max(...vis);}
  }
  if(x0===x1){x0-=1;x1+=1;}
  if(y0===y1){y0-=1;y1+=1;}
- // include 0 if close
  if(y0>0 && y0<0.15*(y1-y0)) y0=0;
  if(y1<0 && -y1<0.15*(y1-y0)) y1=0;
  const pad=(y1-y0)*0.08;y0-=pad;y1+=pad;
 
- // Plot area
  const L=64,T=42,Rr=W-18,B=H-40;
  const X=v=>L+(v-x0)/(x1-x0)*(Rr-L);
  const Y=v=>B-(v-y0)/(y1-y0)*(B-T);
 
- // Background
  g.fillStyle=css('--card2')||'#fff';g.fillRect(L,T,Rr-L,B-T);
 
- // Y ticks (nice steps)
  const yStep=niceStep(y1-y0,5);
  const yStart=Math.ceil(y0/yStep)*yStep;
  const yTicks=[];
- for(let v=yStart;v<=y1+1e-9;v+=yStep) if(Math.abs(v)>1e-12||y0<=0&&y1>=0) yTicks.push(+v.toFixed(12));
- // X ticks
+ for(let v=yStart;v<=y1+1e-9;v+=yStep) yTicks.push(+v.toFixed(12));
  const xStep=niceStep(x1-x0,5);
  const xStart=Math.ceil(x0/xStep)*xStep;
  const xTicks=[];
  for(let v=xStart;v<=x1+1e-9;v+=xStep) xTicks.push(+v.toFixed(12));
 
- // Grid lines (major)
  g.strokeStyle=grid;g.lineWidth=1;
- yTicks.forEach(v=>{
-  g.beginPath();g.moveTo(L,Y(v));g.lineTo(Rr,Y(v));g.stroke();
- });
- xTicks.forEach(v=>{
-  g.beginPath();g.moveTo(X(v),T);g.lineTo(X(v),B);g.stroke();
- });
- // Sub-grid (5 minors per major)
- g.globalAlpha=.4;
- yTicks.slice(0,-1).forEach(v=>{
-  for(let k=1;k<5;k++){const vv=v+(yTicks[1]-yTicks[0])*k/5;if(vv>=y0&&vv<=y1){g.beginPath();g.moveTo(L,Y(vv));g.lineTo(Rr,Y(vv));g.stroke();}}
- });
- xTicks.slice(0,-1).forEach(v=>{
-  for(let k=1;k<5;k++){const vv=v+(xTicks[1]-xTicks[0])*k/5;if(vv>=x0&&vv<=x1){g.beginPath();g.moveTo(X(vv),T);g.lineTo(X(vv),B);g.stroke();}}
- });
- g.globalAlpha=1;
+ yTicks.forEach(v=>{g.beginPath();g.moveTo(L,Y(v));g.lineTo(Rr,Y(v));g.stroke();});
+ xTicks.forEach(v=>{g.beginPath();g.moveTo(X(v),T);g.lineTo(X(v),B);g.stroke();});
 
- // Zero lines (thicker)
  if(y0<0&&y1>0){g.strokeStyle=zero;g.lineWidth=1.5;g.beginPath();g.moveTo(L,Y(0));g.lineTo(Rr,Y(0));g.stroke();}
  if(x0<0&&x1>0){g.strokeStyle=zero;g.lineWidth=1.5;g.beginPath();g.moveTo(X(0),T);g.lineTo(X(0),B);g.stroke();}
 
- // Axes frame
  g.strokeStyle=mut;g.lineWidth=1;
  g.beginPath();g.moveTo(L,T);g.lineTo(L,B);g.lineTo(Rr,B);g.stroke();
 
- // Tick labels
  g.fillStyle=mut;g.font='11px ui-monospace,Menlo,monospace';
  g.textAlign='right';g.textBaseline='middle';
  yTicks.forEach(v=>{g.fillText(fmt(v),L-6,Y(v));});
  g.textAlign='center';g.textBaseline='top';
  xTicks.forEach(v=>{g.fillText(fmt(v),X(v),B+6);});
 
- // Axis titles
- g.fillStyle=fg;g.font='bold 12px sans-serif';g.textAlign='right';g.textBaseline='bottom';
- g.fillText(opts.xlabel,Rr,B+H-B+18);
+ g.fillStyle=fg;g.font='bold 12px sans-serif';
+ g.textAlign='right';g.textBaseline='bottom';
+ g.fillText(opts.xlabel||'',Rr,H-4);
  g.textAlign='left';g.textBaseline='top';
- g.fillText(opts.ylabel,L-50,T-4);
+ g.fillText(opts.ylabel||'',8,T-4);
 
- // Title
  g.fillStyle=fg;g.font='bold 14px sans-serif';g.textAlign='left';g.textBaseline='top';
- g.fillText(tr(title),L,T-30);
- if(sub){g.fillStyle=mut;g.font='11px sans-serif';g.fillText(sub,L,T-14);}
+ g.fillText(tr(opts.title||''),L,10);
+ if(opts.sub){g.fillStyle=mut;g.font='11px sans-serif';g.fillText(opts.sub,L,T-14);}
 
- // ±1σ band (if opts.sigma)
- if(opts.sigma!=null&&isFinite(opts.sigma)&&opts.sigma>0&&opts.centerLine){
+ if(opts.sigma!=null&&isFinite(opts.sigma)&&opts.sigma>0&&opts.centerLine!=null){
   g.fillStyle='rgba(34,163,74,.12)';
-  const cval=opts.centerLine;
-  g.fillRect(L,Y(cval+opts.sigma),Rr-L,Math.max(1,Y(cval-opts.sigma)-Y(cval+opts.sigma)));
+  const top=Y(opts.centerLine+opts.sigma);
+  const bot=Y(opts.centerLine-opts.sigma);
+  g.fillRect(L,Math.min(top,bot),Rr-L,Math.abs(bot-top));
  }
 
- // Fit curves (if opts.fit)
- if(opts.fit&&opts.fit.X){
+ if(opts.fit&&opts.fit.X&&opts.fit.X.length){
   const f=opts.fit;
-  g.strokeStyle=f.col||'#a3a3a3';g.lineWidth=1.8;g.setLineDash([6,4]);
+  g.strokeStyle=f.col||CHART_COLORS.fit;g.lineWidth=1.8;g.setLineDash([6,4]);
   g.beginPath();let pen=false;
-  f.X.forEach((t,i)=>{const q=f.Y[i];if(!isFinite(q)){pen=false;return;}pen?g.lineTo(X(t),Y(q)):g.moveTo(X(t),Y(q));pen=true;});
+  f.X.forEach((x,i)=>{const yy=f.Y[i];if(!isFinite(yy)){pen=false;return;}pen?g.lineTo(X(x),Y(yy)):g.moveTo(X(x),Y(yy));pen=true;});
   g.stroke();g.setLineDash([]);
  }
 
- // Series
  series.forEach(s=>{
   g.strokeStyle=s.col;g.fillStyle=s.col;g.lineWidth=2;
   g.beginPath();let pen=false;
   s.X.forEach((t,i)=>{const q=s.Y[i];if(!isFinite(q)){pen=false;return;}pen?g.lineTo(X(t),Y(q)):g.moveTo(X(t),Y(q));pen=true;});
   g.stroke();
-  // points
   s.X.forEach((t,i)=>{
-   if(isFinite(s.Y[i])){
-    g.beginPath();g.arc(X(t),Y(s.Y[i]),s.r||2.6,0,Math.PI*2);g.fill();
-   }
+   if(isFinite(s.Y[i])){g.beginPath();g.arc(X(t),Y(s.Y[i]),s.r||2.6,0,Math.PI*2);g.fill();}
   });
  });
 
- // Legend (bottom-right, semi-opaque)
  if(series.length>0){
-  g.textAlign='left';g.textBaseline='middle';
+  g.textAlign='left';g.textBaseline='middle';g.font='11px sans-serif';
   const items=series.map(s=>({n:tr(s.n||''),col:s.col}));
-  let maxW=0;g.font='11px sans-serif';
-  items.forEach(it=>{maxW=Math.max(maxW,g.measureText(it.n).width);});
+  let maxW=0;items.forEach(it=>{maxW=Math.max(maxW,g.measureText(it.n).width);});
   const lw=maxW+30, lh=items.length*16+8;
   const lx=Rr-lw-6, ly=B-lh-6;
   g.fillStyle=css('--card2')||'#fff';g.globalAlpha=.85;
@@ -1300,23 +1282,12 @@ function plotChart(id,opts){
   });
  }
 
- // Legend for fit and center
- if(opts.fit&&opts.fit.legend||opts.centerLine!=null){
-  // small footer text
-  g.fillStyle=mut;g.font='11px sans-serif';g.textAlign='right';g.textBaseline='bottom';
-  let txt=[];
-  if(opts.fit&&opts.fit.legend)txt.push(opts.fit.legend);
-  if(opts.centerLine!=null&&isFinite(opts.centerLine))txt.push(tr('mean Em')+': '+fmt(opts.centerLine));
-  if(opts.sigma!=null&&isFinite(opts.sigma))txt.push(tr('±1σ band'));
-  if(txt.length)g.fillText(txt.join(' · '),Rr,B+H-B+18);
- }
+ st.transform={X,Y,x0,x1,y0,y1,L,T,Rr,B};
+ st.series=series;st.W=W;st.H=H;
 
- // Mouse crosshair + tooltip
- const st2=chartState(id);
- const tipEl=$('tip-'+id), xhEl=$('xh-'+id);
- if(tipEl&&st2.mouse&&st2.mouse.inside){
-  const mx=st2.mouse.x,my=st2.mouse.y;
-  // find nearest sample by x in each series
+ const tipEl=$('tip-'+id);
+ if(tipEl&&st.mouse&&st.mouse.inside&&!hidden){
+  const mx=st.mouse.x;
   let best=null;
   series.forEach(s=>{
    s.X.forEach((t,i)=>{
@@ -1328,179 +1299,34 @@ function plotChart(id,opts){
    });
   });
   if(best){
-   // crosshair vertical
-   g.strokeStyle=ac;g.globalAlpha=.5;g.setLineDash([4,3]);
+   g.strokeStyle=css('--ac')||'#c2410c';g.globalAlpha=.5;g.setLineDash([4,3]);
    g.beginPath();g.moveTo(best.px,T);g.lineTo(best.px,B);g.stroke();
    g.setLineDash([]);g.globalAlpha=1;
-   // highlight point
    g.strokeStyle=best.col;g.lineWidth=2;g.beginPath();g.arc(best.px,best.py,5,0,Math.PI*2);g.stroke();
-   // tooltip text
-   const txtX=opts.xlabel.split(' ')[0]||'x';
-   let lines=[txtX+' = '+fmt(best.t)+'  '+best.name+' = '+fmt(best.v)];
-   // add fit residual if fit present
+   const lines=[(opts.xlabel||'x').split(' ')[0]+' = '+fmt(best.t),best.name+' = '+fmt(best.v)];
    if(opts.fit&&opts.fit.Y){
     const idx=opts.fit.X.indexOf(best.t);
-    if(idx>=0&&isFinite(opts.fit.Y[idx])){
-     lines.push('fit = '+fmt(opts.fit.Y[idx])+'  Δ = '+fmt(best.v-opts.fit.Y[idx]));
-    }
+    if(idx>=0&&isFinite(opts.fit.Y[idx])) lines.push('fit = '+fmt(opts.fit.Y[idx])+' · Δ = '+fmt(best.v-opts.fit.Y[idx]));
    }
-   if(tipEl){
-    tipEl.innerHTML=lines.join('<br>');
-    tipEl.style.display='block';
-    const tw=tipEl.offsetWidth;
-    const th=tipEl.offsetHeight;
-    const bx=Math.min(Math.max(4,best.px+10),W-tw-4);
-    const by=Math.min(Math.max(4,best.py-th-8),H-th-4);
-    tipEl.style.left=bx+'px';
-    tipEl.style.top=by+'px';
-   }
+   tipEl.innerHTML=lines.join('<br>');
+   tipEl.style.display='block';
+   const tw=tipEl.offsetWidth,th=tipEl.offsetHeight;
+   const bx=Math.min(Math.max(4,best.px+10),W-tw-4);
+   const by=Math.min(Math.max(4,best.py-th-8),H-th-4);
+   tipEl.style.left=bx+'px';tipEl.style.top=by+'px';
   }
  } else if(tipEl){tipEl.style.display='none';}
-
- // Save the transform for mouse handling
- st2.transform={X,Y,x0,x1,y0,y1,L,T,Rr,B};
- st2.series=series;
- st2.W=W;st2.H=H;
 }
 
-/* Build fit curves */
-function buildFit(t,co,x0,x1,n=120){
- if(!co)return null;
- const X=[],Y=[];
- for(let i=0;i<n;i++){
-  const ti=x0+(x1-x0)*i/(n-1);
-  X.push(ti);
-  Y.push(co.reduce((a,c,j)=>a+c*Math.pow(ti,j),0));
- }
- return {X,Y};
-}
-
-/* Chart selector: which canvas is shown */
-function switchChart(id){
- CHART_IDS.forEach(x=>{
-  const wrap=$('wrap-'+x);
-  if(wrap)wrap.style.display=(x===id?'':'none');
- });
-}
-
-/* Redraw all charts */
-function chart(R){
- if(!R||!R.length){
-  CHART_IDS.forEach(id=>plotChart(id,{title:'',xlabel:'',ylabel:'',series:[{n:'',col:'#888',X:[],Y:[]}]}));
-  return;
- }
- const t=R.map(r=>r.t),f=k=>R.map(r=>r[k]);
- const dx=$('autoDeg').checked?autoDegree(t,f('x')):+$('dx').value;
- const dy=$('autoDeg').checked?autoDegree(t,f('y')):+$('dy').value;
- const cx=polyfit(t,f('x'),dx),cy=polyfit(t,f('y'),dy);
- const tmin=t[0],tmax=t[t.length-1];
-
- // c1: x(t), y(t)
- const fit1x=cx?buildFit(t,cx,tmin,tmax):null;
- const fit1y=cy?buildFit(t,cy,tmin,tmax):null;
- const series1=[];
- if(cx){series1.push({n:'x_fit',col:CHART_COLORS.fit,X:fit1x.X,Y:fit1x.Y,r:0});}
- if(cy){series1.push({n:'y_fit',col:CHART_COLORS.fit,X:fit1y.X,Y:fit1y.Y,r:0});}
- const final1=[
-  {n:'x',col:CHART_COLORS.x,X:t,Y:f('x')},
-  {n:'y',col:CHART_COLORS.y,X:t,Y:f('y')}
- ];
- const r2x=r2(t,f('x'),cx),r2y=r2(t,f('y'),cy);
- const sub1='R² x = '+fmt(r2x)+'  ·  R² y = '+fmt(r2y);
- plotChart('c1',{title:'Positions x(t) and y(t)',xlabel:'t (s)',ylabel:'position (m)',
-  series:[...series1,...final1].map(s=>s.n.endsWith('_fit')?s:Object.assign({},s,{r:2.6})),
-  sub:sub1,
-  fit:null // already in series
- });
- // set fit dash on _fit entries (hack: draw them with different style via special name)
- // We'll just re-plot with fit config for clarity:
- plotChart('c1',{title:'Positions x(t) and y(t)',xlabel:'t (s)',ylabel:'position (m)',
-  series:final1,sub:sub1,
-  fit:{X:fit1x?fit1x.X:[],Y:fit1x?fit1x.Y:[],col:CHART_COLORS.fit,legend:''}
- });
- // (only keep x-fit as visual aid in c1 for simplicity; y-fit follows the same shape)
- // Better: draw both fits using two plot calls is not supported; use a single fit with combined X won't work.
- // → rebuild c1 properly:
- const st1=chartState('c1');
- plotChart('c1',{title:'Positions x(t) and y(t)',xlabel:'t (s)',ylabel:'position (m)',
-  series:[{n:'x',col:CHART_COLORS.x,X:t,Y:f('x')},{n:'y',col:CHART_COLORS.y,X:t,Y:f('y')}],
-  sub:sub1,
-  fit:null
- });
- // Superpose fits manually via a second pass (draw only dashed lines)
- drawFitsOverlay('c1',[{X:fit1x?fit1x.X:[],Y:fit1x?fit1x.Y:[],col:CHART_COLORS.fit},{X:fit1y?fit1y.X:[],Y:fit1y?fit1y.Y:[],col:CHART_COLORS.fit}]);
-
- // c2: v(t), vx, vy
- const vxFit=buildFit(t,(()=>{if(!cx)return null;const v=[cx[1]];if(cx[2])v.push(2*cx[2],0);return v;})(),tmin,tmax);
- const vyFit=buildFit(t,(()=>{if(!cy)return null;const v=[cy[1]];if(cy[2])v.push(2*cy[2],0);return v;})(),tmin,tmax);
- plotChart('c2',{title:'Speed v(t) and components vx(t), vy(t)',xlabel:'t (s)',ylabel:'speed (m/s)',
-  series:[{n:'v',col:CHART_COLORS.v,X:t,Y:f('v')},{n:'vx',col:CHART_COLORS.vx,X:t,Y:f('vx')},{n:'vy',col:CHART_COLORS.vy,X:t,Y:f('vy')}],
-  sub:''
- });
- drawFitsOverlay('c2',[{X:vxFit?vxFit.X:[],Y:vxFit?vxFit.Y:[],col:CHART_COLORS.vx},{X:vyFit?vyFit.X:[],Y:vyFit?vyFit.Y:[],col:CHART_COLORS.vy}]);
-
- // c3: energy — mean Em as line + ±1σ band
- const ems=f('Em').filter(isFinite);
- const emMean=ems.length?ems.reduce((a,b)=>a+b,0)/ems.length:null;
- let emStd=null;
- if(ems.length>1&&emMean!=null){
-  const ss=ems.reduce((a,b)=>a+(b-emMean)**2,0);
-  emStd=Math.sqrt(ss/(ems.length-1));
- }
- const keM=Math.max(...f('KE').filter(isFinite));
- const emMin=Math.min(...f('Em').filter(isFinite));
- const emMax=Math.max(...f('Em').filter(isFinite));
- const dEmPct=Math.abs(emMax-emMin)/Math.max(1e-9,keM)*100;
- plotChart('c3',{title:'Kinetic, potential and mechanical energy',xlabel:'t (s)',ylabel:'energy (J)',
-  series:[{n:'KE',col:CHART_COLORS.KE,X:t,Y:f('KE')},{n:'PE',col:CHART_COLORS.PE,X:t,Y:f('PE')},{n:'ME',col:CHART_COLORS.ME,X:t,Y:f('ME')}],
-  sub:'ΔEm/KE_max = '+fmt(dEmPct)+' %',
-  centerLine:emMean,sigma:emStd
- });
-
- // c4: y(x) + parabola fit
- let cXY=null,sub4='';
- if(f('x').filter(isFinite).length>=3){
-  cXY=polyfit(f('x').filter(isFinite),f('y').filter(isFinite),2);
-  if(cXY)sub4='y = '+fmt(cXY[0])+' + '+fmt(cXY[1])+'·x + '+fmt(cXY[2])+'·x²';
- }
- const xyFit=cXY?buildFit(null,null,0,0):null;
- // build fit with custom axis
- let fit4=null;
- if(cXY){
-  const xs=f('x').filter(isFinite);
-  const xmin=Math.min(...xs),xmax=Math.max(...xs);
-  const X=[],Y=[];
-  for(let i=0;i<120;i++){
-   const xi=xmin+(xmax-xmin)*i/119;
-   X.push(xi);
-   Y.push(cXY[0]+cXY[1]*xi+cXY[2]*xi*xi);
-  }
-  fit4={X,Y,col:CHART_COLORS.fit};
- }
- plotChart('c4',{title:'Trajectory y(x)',xlabel:'x (m)',ylabel:'y (m)',
-  series:[{n:'y(x)',col:CHART_COLORS.x,X:f('x'),Y:f('y')}],sub:sub4,fit:fit4});
-
- // c5: residuals
- if(!cx||!cy){plotChart('c5',{title:'Fit residuals (data − fit)',xlabel:'t (s)',ylabel:'residual (m)',series:[]});return;}
- const resX=R.map(r=>r.x-cx.reduce((a,c0,j)=>a+c0*Math.pow(r.t,j),0));
- const resY=R.map(r=>r.y-cy.reduce((a,c0,j)=>a+c0*Math.pow(r.t,j),0));
- const allRes=[...resX,...resY].filter(isFinite);
- const resMean=allRes.reduce((a,b)=>a+b,0)/allRes.length;
- const resStd=Math.sqrt(allRes.reduce((a,b)=>a+(b-resMean)**2,0)/Math.max(1,allRes.length-1));
- plotChart('c5',{title:'Fit residuals (data − fit)',xlabel:'t (s)',ylabel:'residual (m)',
-  series:[{n:'x',col:CHART_COLORS.x,X:t,Y:resX},{n:'y',col:CHART_COLORS.y,X:t,Y:resY}],
-  sub:'σ = '+fmt(resStd)+' m',
-  centerLine:0,sigma:resStd
- });
-}
-/* Overlay multiple dashed fit curves onto an existing chart */
 function drawFitsOverlay(id,fits){
- const cv=$(id),g=cv.getContext('2d');
- const st=chartState(id);if(!st.transform)return;
- const {X,Y,T,B}=st.transform;
+ const cv=$(id);if(!cv)return;
+ const g=cv.getContext('2d');
+ const st=chartState(id);
+ if(!st.transform)return;
+ const {X,Y}=st.transform;
  g.save();
  fits.forEach(f=>{
-  if(!f.X.length)return;
+  if(!f||!f.X||!f.X.length)return;
   g.strokeStyle=f.col;g.lineWidth=1.6;g.setLineDash([6,4]);g.globalAlpha=.9;
   g.beginPath();let pen=false;
   f.X.forEach((x,i)=>{const yy=f.Y[i];if(!isFinite(yy)){pen=false;return;}pen?g.lineTo(X(x),Y(yy)):g.moveTo(X(x),Y(yy));pen=true;});
@@ -1509,13 +1335,153 @@ function drawFitsOverlay(id,fits){
  g.restore();
 }
 
+/* Make only one chart visible — WITHOUT calling chart() to avoid recursion */
+function switchChart(id){
+ S.activeChart=id;
+ CHART_IDS.forEach(x=>{
+  const wrap=$('wrap-'+x);
+  if(wrap)wrap.style.display=(x===id?'':'none');
+ });
+}
+
+/* Draw ALL charts using the data; keep hidden ones drawn at default size.
+   Then apply the active tab visibility. When the user clicks a tab, we
+   call chart(S.R) again — this time the wrapper is visible, clientWidth>0,
+   so makeCtx sizes it correctly. */
+function chart(R){
+ if(S._inChart)return;
+ S._inChart=true;
+ try{
+  if(!R||!R.length){
+   CHART_IDS.forEach(id=>plotChart(id,{title:'',xlabel:'',ylabel:'',series:[{n:'',col:'#888',X:[],Y:[]}]}));
+   return;
+  }
+  const t=R.map(r=>r.t),f=k=>R.map(r=>r[k]);
+  const dx=$('autoDeg').checked?autoDegree(t,f('x')):+$('dx').value;
+  const dy=$('autoDeg').checked?autoDegree(t,f('y')):+$('dy').value;
+  const cx=polyfit(t,f('x'),dx),cy=polyfit(t,f('y'),dy);
+  const tmin=t[0],tmax=t[t.length-1];
+  const fitX=buildFitCurve(cx,tmin,tmax);
+  const fitY=buildFitCurve(cy,tmin,tmax);
+
+  /* c1: x(t), y(t) + fits */
+  plotChart('c1',{
+   title:'Positions x(t) and y(t)',xlabel:'t (s)',ylabel:'position (m)',
+   series:[
+    {n:'x',col:CHART_COLORS.x,X:t,Y:f('x')},
+    {n:'y',col:CHART_COLORS.y,X:t,Y:f('y')}
+   ],
+   sub:'R² x = '+fmt(r2(t,f('x'),cx))+' · R² y = '+fmt(r2(t,f('y'),cy))
+  });
+  drawFitsOverlay('c1',[
+   {X:fitX?fitX.X:[],Y:fitX?fitX.Y:[],col:CHART_COLORS.x},
+   {X:fitY?fitY.X:[],Y:fitY?fitY.Y:[],col:CHART_COLORS.y}
+  ]);
+
+  /* c2: v(t) + derivative fits */
+  const vxCo=cx?[cx[1]||0,2*(cx[2]||0)]:null;
+  const vyCo=cy?[cy[1]||0,2*(cy[2]||0)]:null;
+  const fitVx=vxCo?buildFitCurve(vxCo,tmin,tmax):null;
+  const fitVy=vyCo?buildFitCurve(vyCo,tmin,tmax):null;
+  plotChart('c2',{
+   title:'Speed v(t) and components vx(t), vy(t)',xlabel:'t (s)',ylabel:'speed (m/s)',
+   series:[
+    {n:'v',col:CHART_COLORS.v,X:t,Y:f('v')},
+    {n:'vx',col:CHART_COLORS.vx,X:t,Y:f('vx')},
+    {n:'vy',col:CHART_COLORS.vy,X:t,Y:f('vy')}
+   ]
+  });
+  drawFitsOverlay('c2',[
+   {X:fitVx?fitVx.X:[],Y:fitVx?fitVx.Y:[],col:CHART_COLORS.vx},
+   {X:fitVy?fitVy.X:[],Y:fitVy?fitVy.Y:[],col:CHART_COLORS.vy}
+  ]);
+
+  /* c3: energies + mean Em + ±1σ */
+  const ems=f('Em').filter(isFinite);
+  const emMean=ems.length?ems.reduce((a,b)=>a+b,0)/ems.length:null;
+  let emStd=null;
+  if(ems.length>1&&emMean!=null){
+   const ss=ems.reduce((a,b)=>a+(b-emMean)**2,0);
+   emStd=Math.sqrt(ss/(ems.length-1));
+  }
+  const keMax=Math.max(...f('KE').filter(isFinite));
+  const emMin=Math.min(...ems),emMax=Math.max(...ems);
+  const dEmPct=keMax>0?Math.abs(emMax-emMin)/keMax*100:NaN;
+  plotChart('c3',{
+   title:'Kinetic, potential and mechanical energy',xlabel:'t (s)',ylabel:'energy (J)',
+   series:[
+    {n:'KE',col:CHART_COLORS.KE,X:t,Y:f('KE')},
+    {n:'PE',col:CHART_COLORS.PE,X:t,Y:f('PE')},
+    {n:'ME',col:CHART_COLORS.ME,X:t,Y:f('ME')}
+   ],
+   sub:'ΔEm/KE_max = '+fmt(dEmPct)+' % · Em = '+fmt(emMean)+' ± '+fmt(emStd)+' J',
+   centerLine:emMean,sigma:emStd
+  });
+
+  /* c4: y(x) + parabola fit */
+  let cXY=null,fitXY=null,sub4='';
+  const xsFiltered=f('x').filter(isFinite);
+  const ysFiltered=f('y').filter(isFinite);
+  if(xsFiltered.length>=3&&ysFiltered.length>=3){
+   cXY=polyfit(xsFiltered,ysFiltered,2);
+   if(cXY){
+    sub4='y = '+fmt(cXY[0])+' + '+fmt(cXY[1])+'·x + '+fmt(cXY[2])+'·x²';
+    const xmin=Math.min(...xsFiltered),xmax=Math.max(...xsFiltered);
+    const X=[],Y=[];
+    for(let i=0;i<120;i++){
+     const xi=xmin+(xmax-xmin)*i/119;
+     X.push(xi);
+     Y.push(cXY[0]+cXY[1]*xi+cXY[2]*xi*xi);
+    }
+    fitXY={X,Y,col:CHART_COLORS.fit};
+   }
+  }
+  plotChart('c4',{
+   title:'Trajectory y(x)',xlabel:'x (m)',ylabel:'y (m)',
+   series:[{n:'y(x)',col:CHART_COLORS.x,X:f('x'),Y:f('y')}],
+   sub:sub4,fit:fitXY
+  });
+
+  /* c5: residuals */
+  if(!cx||!cy){
+   plotChart('c5',{title:'Fit residuals (data − fit)',xlabel:'t (s)',ylabel:'residual (m)',series:[]});
+  } else {
+   const resX=R.map(r=>r.x-cx.reduce((a,c0,j)=>a+c0*Math.pow(r.t,j),0));
+   const resY=R.map(r=>r.y-cy.reduce((a,c0,j)=>a+c0*Math.pow(r.t,j),0));
+   const allRes=[...resX,...resY].filter(isFinite);
+   const resMean=allRes.reduce((a,b)=>a+b,0)/Math.max(1,allRes.length);
+   const resStd=Math.sqrt(allRes.reduce((a,b)=>a+(b-resMean)**2,0)/Math.max(1,allRes.length-1));
+   plotChart('c5',{
+    title:'Fit residuals (data − fit)',xlabel:'t (s)',ylabel:'residual (m)',
+    series:[
+     {n:'x',col:CHART_COLORS.x,X:t,Y:resX},
+     {n:'y',col:CHART_COLORS.y,X:t,Y:resY}
+    ],
+    sub:'σ = '+fmt(resStd)+' m',
+    centerLine:0,sigma:resStd
+   });
+  }
+ } finally {
+  S._inChart=false;
+ }
+}
+
+/* Tab click: apply visibility, THEN redraw (canvas now has real clientWidth) */
+$('gTabs').onclick=e=>{
+ const b=e.target.closest('button[data-g]');if(!b)return;
+ [...$('gTabs').children].forEach(x=>x.classList.toggle('on',x===b));
+ switchChart(b.dataset.g);
+ // Wait one frame so the browser applies display:block and computes clientWidth
+ requestAnimationFrame(()=>{ if(S.R)chart(S.R); });
+};
+
 /* Reset zoom all */
 $('resetZoom').onclick=()=>{
  CHART_IDS.forEach(id=>{const st=chartState(id);st.zoom={x0:null,x1:null};});
  if(S.R)chart(S.R); else refresh();
 };
 
-/* SVG export helpers */
+/* Mouse / wheel / png per chart */
 CHART_IDS.forEach(id=>{
  const cv=$(id);if(!cv)return;
  cv.addEventListener('mousemove',e=>{
@@ -1547,7 +1513,6 @@ CHART_IDS.forEach(id=>{
   const st=chartState(id);st.zoom={x0:null,x1:null};
   if(S.R)chart(S.R);
  });
- // PNG export
  const pngBtn=document.querySelector('button[data-png="'+id+'"]');
  if(pngBtn){
   pngBtn.onclick=()=>{
@@ -1561,14 +1526,6 @@ CHART_IDS.forEach(id=>{
   };
  }
 });
-
-/* Chart tab switching */
-$('gTabs').onclick=e=>{
- const b=e.target.closest('button[data-g]');if(!b)return;
- [...$('gTabs').children].forEach(x=>x.classList.toggle('on',x===b));
- switchChart(b.dataset.g);
- if(S.R)chart(S.R);
-};
 
 /* ============================================================
    Export
@@ -1617,27 +1574,27 @@ function printMode(mode){
  document.body.classList.remove('print-table-only','print-graph-only');
  const restore=[];
  const setDisp=(el,v)=>{if(el){restore.push([el,el.style.display]);el.style.display=v;}};
+ const active=S.activeChart||'c1';
  if(mode==='table'){
   document.body.classList.add('print-table-only');
  }else if(mode==='graph'){
   document.body.classList.add('print-graph-only');
-  CHART_IDS.forEach(id=>{
-   setDisp($('wrap-'+id),'');
-  });
+  CHART_IDS.forEach(id=>setDisp($('wrap-'+id),''));
  }else if(mode==='current-graph'){
   document.body.classList.add('print-graph-only');
-  const cur=[...$('gTabs').children].find(b=>b.classList.contains('on'));
-  const curId=cur?cur.dataset.g:'c1';
-  CHART_IDS.forEach(id=>setDisp($('wrap-'+id),id===curId?'':'none'));
+  CHART_IDS.forEach(id=>setDisp($('wrap-'+id),id===active?'':'none'));
  }
+ // let layout settle then redraw so hidden canvases resize
+ requestAnimationFrame(()=>{
+  if(S.R)chart(S.R);
+  setTimeout(()=>window.print(),80);
+ });
  window.addEventListener('afterprint',()=>{
   document.body.classList.remove('print-table-only','print-graph-only');
   restore.forEach(([el,d])=>{el.style.display=d;});
-  // reapply tab state after print
-  const cur=[...$('gTabs').children].find(b=>b.classList.contains('on'));
-  switchChart(cur?cur.dataset.g:'c1');
+  switchChart(active);
+  requestAnimationFrame(()=>{ if(S.R)chart(S.R); });
  },{once:true});
- requestAnimationFrame(()=>setTimeout(()=>window.print(),80));
 }
 $('prTab').onclick=()=>{ if(!S.R||!S.R.length){say(tr('No data yet.'));return;} printMode('table'); };
 $('prRep').onclick=()=>{ if(!S.R||!S.R.length){say(tr('No data yet.'));return;} printMode('all'); };
@@ -1651,6 +1608,8 @@ try{$('cpyear').textContent=new Date().getFullYear();}catch(e){}
 $('lEN').onclick=()=>setLang('en');
 $('lFR').onclick=()=>setLang('fr');
 window.addEventListener('resize',()=>{if(S.R)chart(S.R);});
+// set default active tab = c1 and apply visibility BEFORE applyLang -> refresh -> chart()
+switchChart('c1');
 applyLang();
 </script>
 <script>
