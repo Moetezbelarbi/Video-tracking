@@ -1114,7 +1114,7 @@ async function startAuto(x,y){
 }
 
 /* ============================================================
-   CHART ENGINE — fixed for hidden canvases
+   CHART ENGINE — blindé contre les valeurs aberrantes et l'échelle
    ============================================================ */
 const CHART_IDS=['c1','c2','c3','c4','c5'];
 const CHART_COLORS={
@@ -1126,13 +1126,10 @@ function chartState(id){
  if(!S.charts[id]) S.charts[id]={zoom:{x0:null,x1:null},mouse:null};
  return S.charts[id];
 }
-/* Critical fix: never resize a hidden canvas (clientWidth = 0).
-   If dimensions didn't change, don't reassign (which clears the canvas). */
 function makeCtx(cv){
  const dpr=Math.max(1,Math.min(3,window.devicePixelRatio||1));
  let cssW=cv.clientWidth;
  if(!cssW||cssW<20){
-  // wrapper is hidden — keep current dimensions
   const curW=cv.width||640;
   const curH=cv.height||300;
   const g=cv.getContext('2d');
@@ -1152,7 +1149,9 @@ function makeCtx(cv){
  return {g,W:cssW,H:cssH,hidden:false};
 }
 function niceStep(range,targetTicks){
+ if(!range||range<=0||!isFinite(range))return 1;
  const raw=range/Math.max(1,targetTicks);
+ if(!isFinite(raw)||raw===0) return 1;
  const p=Math.pow(10,Math.floor(Math.log10(raw)));
  const m=raw/p;
  let s;
@@ -1169,6 +1168,7 @@ function buildFitCurve(co,x0,x1,n=120){
  }
  return {X,Y};
 }
+
 function plotChart(id,opts){
  const cv=$(id);if(!cv)return;
  const {g,W,H,hidden}=makeCtx(cv);
@@ -1177,8 +1177,11 @@ function plotChart(id,opts){
  const grid=css('--grid')||'rgba(0,0,0,.08)';
  const zero=css('--zero')||'rgba(0,0,0,.25)';
  const series=(opts.series||[]).filter(s=>s.X&&s.X.length&&s.Y&&s.Y.length);
- const allY=series.flatMap(s=>s.Y).filter(isFinite);
- const allX=series.flatMap(s=>s.X).filter(isFinite);
+ 
+ // Nettoyage strict des données
+ const allY=series.flatMap(s=>s.Y).filter(v=>isFinite(v)&&!isNaN(v));
+ const allX=series.flatMap(s=>s.X).filter(v=>isFinite(v)&&!isNaN(v));
+ 
  if(!allY.length||!allX.length){
   g.fillStyle=fg;g.font='bold 13px sans-serif';g.fillText(tr(opts.title||''),12,22);
   g.fillStyle=mut;g.font='13px sans-serif';g.fillText(tr('No data yet.'),20,52);
@@ -1187,18 +1190,27 @@ function plotChart(id,opts){
  }
  let x0=Math.min(...allX),x1=Math.max(...allX);
  let y0=Math.min(...allY),y1=Math.max(...allY);
+ 
+ // Si toutes les valeurs sont identiques (ex: 0 partout)
+ if(x0===x1){x0-=0.1;x1+=0.1;}
+ if(y0===y1){y0-=0.1;y1+=0.1;}
+
  const st=chartState(id);
- if(st.zoom.x0!==null&&st.zoom.x1!==null&&st.zoom.x1>st.zoom.x0){
+ if(st.zoom && st.zoom.x0!==null && st.zoom.x1!==null && st.zoom.x1>st.zoom.x0){
   x0=Math.max(x0,st.zoom.x0);x1=Math.min(x1,st.zoom.x1);
   if(x1<=x0){x0=Math.min(...allX);x1=Math.max(...allX);st.zoom={x0:null,x1:null};}
   const vis=series.flatMap(s=>s.X.map((xv,i)=>xv>=x0&&xv<=x1?s.Y[i]:NaN)).filter(isFinite);
   if(vis.length){y0=Math.min(...vis);y1=Math.max(...vis);}
  }
- if(x0===x1){x0-=1;x1+=1;}
- if(y0===y1){y0-=1;y1+=1;}
+ 
+ // Inclure le zéro
  if(y0>0 && y0<0.15*(y1-y0)) y0=0;
  if(y1<0 && -y1<0.15*(y1-y0)) y1=0;
- const pad=(y1-y0)*0.08;y0-=pad;y1+=pad;
+ 
+ const padY=(y1-y0)*0.08 || 0.1;
+ y0-=padY; y1+=padY;
+ const padX=(x1-x0)*0.02 || 0.1;
+ x0-=padX; x1+=padX;
 
  const L=64,T=42,Rr=W-18,B=H-40;
  const X=v=>L+(v-x0)/(x1-x0)*(Rr-L);
@@ -1210,6 +1222,7 @@ function plotChart(id,opts){
  const yStart=Math.ceil(y0/yStep)*yStep;
  const yTicks=[];
  for(let v=yStart;v<=y1+1e-9;v+=yStep) yTicks.push(+v.toFixed(12));
+ 
  const xStep=niceStep(x1-x0,5);
  const xStart=Math.ceil(x0/xStep)*xStep;
  const xTicks=[];
@@ -1227,9 +1240,11 @@ function plotChart(id,opts){
 
  g.fillStyle=mut;g.font='11px ui-monospace,Menlo,monospace';
  g.textAlign='right';g.textBaseline='middle';
- yTicks.forEach(v=>{g.fillText(fmt(v),L-6,Y(v));});
+ // Formatage scientifique pour les très petites valeurs
+ const fmtAxis = v => Math.abs(v) < 0.01 && v !== 0 ? v.toExponential(1) : fmt(v);
+ yTicks.forEach(v=>{g.fillText(fmtAxis(v),L-6,Y(v));});
  g.textAlign='center';g.textBaseline='top';
- xTicks.forEach(v=>{g.fillText(fmt(v),X(v),B+6);});
+ xTicks.forEach(v=>{g.fillText(fmtAxis(v),X(v),B+6);});
 
  g.fillStyle=fg;g.font='bold 12px sans-serif';
  g.textAlign='right';g.textBaseline='bottom';
@@ -1241,11 +1256,16 @@ function plotChart(id,opts){
  g.fillText(tr(opts.title||''),L,10);
  if(opts.sub){g.fillStyle=mut;g.font='11px sans-serif';g.fillText(opts.sub,L,T-14);}
 
- if(opts.sigma!=null&&isFinite(opts.sigma)&&opts.sigma>0&&opts.centerLine!=null){
+ // DESSIN DE LA BANDE (Protégé contre les erreurs)
+ if(opts.sigma!=null && isFinite(opts.sigma) && opts.sigma>0 && opts.centerLine!=null){
   g.fillStyle='rgba(34,163,74,.12)';
-  const top=Y(opts.centerLine+opts.sigma);
-  const bot=Y(opts.centerLine-opts.sigma);
-  g.fillRect(L,Math.min(top,bot),Rr-L,Math.abs(bot-top));
+  const top = Y(opts.centerLine+opts.sigma);
+  const bot = Y(opts.centerLine-opts.sigma);
+  const rectH = Math.abs(bot-top);
+  const rectY = Math.min(top,bot);
+  if(isFinite(rectH) && rectH > 0 && isFinite(rectY)) {
+      g.fillRect(L, rectY, Rr-L, rectH);
+  }
  }
 
  if(opts.fit&&opts.fit.X&&opts.fit.X.length){
@@ -1259,7 +1279,11 @@ function plotChart(id,opts){
  series.forEach(s=>{
   g.strokeStyle=s.col;g.fillStyle=s.col;g.lineWidth=2;
   g.beginPath();let pen=false;
-  s.X.forEach((t,i)=>{const q=s.Y[i];if(!isFinite(q)){pen=false;return;}pen?g.lineTo(X(t),Y(q)):g.moveTo(X(t),Y(q));pen=true;});
+  s.X.forEach((t,i)=>{
+   const q=s.Y[i];
+   if(!isFinite(q)){pen=false;return;}
+   pen?g.lineTo(X(t),Y(q)):g.moveTo(X(t),Y(q));pen=true;
+  });
   g.stroke();
   s.X.forEach((t,i)=>{
    if(isFinite(s.Y[i])){g.beginPath();g.arc(X(t),Y(s.Y[i]),s.r||2.6,0,Math.PI*2);g.fill();}
@@ -1335,7 +1359,6 @@ function drawFitsOverlay(id,fits){
  g.restore();
 }
 
-/* Make only one chart visible — WITHOUT calling chart() to avoid recursion */
 function switchChart(id){
  S.activeChart=id;
  CHART_IDS.forEach(x=>{
@@ -1344,10 +1367,6 @@ function switchChart(id){
  });
 }
 
-/* Draw ALL charts using the data; keep hidden ones drawn at default size.
-   Then apply the active tab visibility. When the user clicks a tab, we
-   call chart(S.R) again — this time the wrapper is visible, clientWidth>0,
-   so makeCtx sizes it correctly. */
 function chart(R){
  if(S._inChart)return;
  S._inChart=true;
@@ -1396,41 +1415,41 @@ function chart(R){
    {X:fitVy?fitVy.X:[],Y:fitVy?fitVy.Y:[],col:CHART_COLORS.vy}
   ]);
 
-/* c3: energies + mean Em + ±1σ */
-const ems = f('Em').filter(isFinite);
-const emMean = ems.length
- ? ems.reduce((a,b)=>a+b,0)/ems.length
- : null;
+  /* c3: energies + mean Em + ±1σ */
+  const ems = f('Em').filter(isFinite);
+  const emMean = ems.length
+   ? ems.reduce((a,b)=>a+b,0)/ems.length
+   : null;
 
-let emStd = null;
-if(ems.length > 1 && emMean !== null){
- const ss = ems.reduce((a,b)=>a+(b-emMean)**2,0);
- emStd = Math.sqrt(ss/(ems.length-1));
-}
+  let emStd = null;
+  if(ems.length > 1 && emMean !== null){
+   const ss = ems.reduce((a,b)=>a+(b-emMean)**2,0);
+   emStd = Math.sqrt(ss/(ems.length-1));
+  }
 
-const ecs = f('Ec').filter(isFinite);
-const keMax = ecs.length ? Math.max(...ecs) : 0;
+  const ecs = f('Ec').filter(isFinite);
+  const keMax = ecs.length ? Math.max(...ecs) : 0;
 
-const emMin = ems.length ? Math.min(...ems) : NaN;
-const emMax = ems.length ? Math.max(...ems) : NaN;
+  const emMin = ems.length ? Math.min(...ems) : NaN;
+  const emMax = ems.length ? Math.max(...ems) : NaN;
 
-const dEmPct = keMax > 0 && ems.length
- ? Math.abs(emMax-emMin)/keMax*100
- : NaN;
+  const dEmPct = keMax > 0 && ems.length
+   ? Math.abs(emMax-emMin)/keMax*100
+   : NaN;
 
-plotChart('c3',{
- title:'Kinetic, potential and mechanical energy',
- xlabel:'t (s)',
- ylabel:'energy (J)',
- series:[
-  {n:'KE',col:CHART_COLORS.KE,X:t,Y:f('Ec')},
-  {n:'PE',col:CHART_COLORS.PE,X:t,Y:f('Ep')},
-  {n:'ME',col:CHART_COLORS.ME,X:t,Y:f('Em')}
- ],
- sub:'ΔEm/KE_max = '+fmt(dEmPct)+' % · Em = '+fmt(emMean)+' ± '+fmt(emStd)+' J',
- centerLine:emMean,
- sigma:emStd
-});
+  plotChart('c3',{
+   title:'Kinetic, potential and mechanical energy',
+   xlabel:'t (s)',
+   ylabel:'energy (J)',
+   series:[
+    {n:'KE',col:CHART_COLORS.KE,X:t,Y:f('Ec')},
+    {n:'PE',col:CHART_COLORS.PE,X:t,Y:f('Ep')},
+    {n:'ME',col:CHART_COLORS.ME,X:t,Y:f('Em')}
+   ],
+   sub:'ΔEm/KE_max = '+fmt(dEmPct)+' % · Em = '+fmt(emMean)+' ± '+fmt(emStd)+' J',
+   centerLine:emMean,
+   sigma:emStd
+  });
 
   /* c4: y(x) + parabola fit */
   let cXY=null,fitXY=null,sub4='';
@@ -1622,7 +1641,6 @@ try{$('cpyear').textContent=new Date().getFullYear();}catch(e){}
 $('lEN').onclick=()=>setLang('en');
 $('lFR').onclick=()=>setLang('fr');
 window.addEventListener('resize',()=>{if(S.R)chart(S.R);});
-// set default active tab = c1 and apply visibility BEFORE applyLang -> refresh -> chart()
 switchChart('c1');
 applyLang();
 </script>
