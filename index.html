@@ -1396,27 +1396,41 @@ function chart(R){
    {X:fitVy?fitVy.X:[],Y:fitVy?fitVy.Y:[],col:CHART_COLORS.vy}
   ]);
 
-  /* c3: energies + mean Em + ±1σ */
-  const ems=f('Em').filter(isFinite);
-  const emMean=ems.length?ems.reduce((a,b)=>a+b,0)/ems.length:null;
-  let emStd=null;
-  if(ems.length>1&&emMean!=null){
-   const ss=ems.reduce((a,b)=>a+(b-emMean)**2,0);
-   emStd=Math.sqrt(ss/(ems.length-1));
-  }
-  const keMax=Math.max(...f('KE').filter(isFinite));
-  const emMin=Math.min(...ems),emMax=Math.max(...ems);
-  const dEmPct=keMax>0?Math.abs(emMax-emMin)/keMax*100:NaN;
-  plotChart('c3',{
-   title:'Kinetic, potential and mechanical energy',xlabel:'t (s)',ylabel:'energy (J)',
-   series:[
-    {n:'KE',col:CHART_COLORS.KE,X:t,Y:f('KE')},
-    {n:'PE',col:CHART_COLORS.PE,X:t,Y:f('PE')},
-    {n:'ME',col:CHART_COLORS.ME,X:t,Y:f('ME')}
-   ],
-   sub:'ΔEm/KE_max = '+fmt(dEmPct)+' % · Em = '+fmt(emMean)+' ± '+fmt(emStd)+' J',
-   centerLine:emMean,sigma:emStd
-  });
+/* c3: energies + mean Em + ±1σ */
+const ems = f('Em').filter(isFinite);
+const emMean = ems.length
+ ? ems.reduce((a,b)=>a+b,0)/ems.length
+ : null;
+
+let emStd = null;
+if(ems.length > 1 && emMean !== null){
+ const ss = ems.reduce((a,b)=>a+(b-emMean)**2,0);
+ emStd = Math.sqrt(ss/(ems.length-1));
+}
+
+const ecs = f('Ec').filter(isFinite);
+const keMax = ecs.length ? Math.max(...ecs) : 0;
+
+const emMin = ems.length ? Math.min(...ems) : NaN;
+const emMax = ems.length ? Math.max(...ems) : NaN;
+
+const dEmPct = keMax > 0 && ems.length
+ ? Math.abs(emMax-emMin)/keMax*100
+ : NaN;
+
+plotChart('c3',{
+ title:'Kinetic, potential and mechanical energy',
+ xlabel:'t (s)',
+ ylabel:'energy (J)',
+ series:[
+  {n:'KE',col:CHART_COLORS.KE,X:t,Y:f('Ec')},
+  {n:'PE',col:CHART_COLORS.PE,X:t,Y:f('Ep')},
+  {n:'ME',col:CHART_COLORS.ME,X:t,Y:f('Em')}
+ ],
+ sub:'ΔEm/KE_max = '+fmt(dEmPct)+' % · Em = '+fmt(emMean)+' ± '+fmt(emStd)+' J',
+ centerLine:emMean,
+ sigma:emStd
+});
 
   /* c4: y(x) + parabola fit */
   let cXY=null,fitXY=null,sub4='';
