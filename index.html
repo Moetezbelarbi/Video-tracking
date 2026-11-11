@@ -382,16 +382,34 @@ const FR={
 const tr=s=>LANG==='fr'&&FR[s]!==undefined?FR[s]:s;
 function setLang(l){LANG=l;try{localStorage.setItem('lang',l);}catch(e){}applyLang();}
 function applyLang(){
- document.documentElement.lang=LANG;document.title=tr('Video tracking – Kinematics and energy');
- const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
- while(n=w.nextNode()){
-  if(n.parentNode.closest('script,canvas,#msg,pre,#tb,.chHead'))continue;
-  const raw=n.nodeValue,k=n.__k||raw.trim();
-  if(!k||(!n.__k&&FR[k]===undefined))continue;
-  n.__k=k;const m=raw.match(/^(\s*)[\s\S]*?(\s*)$/);n.nodeValue=m[1]+tr(k)+m[2];
+ document.documentElement.lang = LANG;
+ document.title = tr('Video tracking – Kinematics and energy');
+ 
+ // On parcourt tout le texte, mais on exclut le contenu dynamique (tableaux, canvas, pré)
+ const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+ let n;
+ while(n = w.nextNode()){
+  // Ignorer les balises script, style, canvas, pre, table, et les inputs
+  if(n.parentNode.closest('script, style, canvas, pre, #tb, textarea, input, select'))continue;
+  
+  const raw = n.nodeValue;
+  const k = n.__k || raw.trim();
+  
+  // Si le texte est vide ou n'est pas dans le dictionnaire, on l'ignore
+  if(!k || (!n.__k && FR[k] === undefined))continue;
+  
+  n.__k = k;
+  const m = raw.match(/^(\s*)[\s\S]*?(\s*)$/); // Garder les espaces autour
+  n.nodeValue = m[1] + tr(k) + m[2];
  }
- $('lEN').classList.toggle('on',LANG==='en');$('lFR').classList.toggle('on',LANG==='fr');
- if(!v.duration)say(tr('Load a video.'));else say('');
+ 
+ // Mise à jour de l'état visuel des boutons de langue
+ $('lEN').classList.toggle('on', LANG === 'en');
+ $('lFR').classList.toggle('on', LANG === 'fr');
+ 
+ if(!v.duration) say(tr('Load a video.'));
+ else say('');
+ 
  refresh();
 }
 
